@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ffffff;
+  --color-secondary: #000000;
+}
+@layer base {
+  body {
+    background-color: var(--color-secondary);
+    overflow-x: hidden;
+  }
+}
+.card {
+  @apply bg-secondary p-6 rounded-2xl border border-gray-400;
+}
+.card-btn {
+  @apply flex items-center gap-3 text-[12px] font-medium text-primary bg-secondary hover:text-secondary hover:bg-primary px-4 py-1.5 rounded-2xl border border-gray-400 transition-all duration-300;
+}
+.add-btn {
+  @apply flex items-center gap-1.5 text-sm md:text-lg font-medium text-primary bg-secondary hover:text-secondary hover:bg-primary px-4 py-3 rounded-2xl border border-gray-400 transition-all duration-300;
+}
