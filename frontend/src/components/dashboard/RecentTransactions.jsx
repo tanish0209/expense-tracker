@@ -1,5 +1,4 @@
 import React from "react";
-import { IoMdDocument } from "react-icons/io";
 import { LuArrowRight } from "react-icons/lu";
 import moment from "moment";
 import TransactionsInfoCard from "../cards/TransactionsInfoCard";
@@ -7,8 +6,8 @@ import TransactionsInfoCard from "../cards/TransactionsInfoCard";
 const RecentTransactions = ({ transactions, onSeeMore }) => {
   return (
     <div className="card text-primary border-gray-400">
-      <div className="flex items-center justify-between">
-        <h5 className="text-lg">Recent Transactions</h5>
+      <div className="flex items-center border-b pb-4  justify-between">
+        <h5 className="text-lg font-semibold">Recent Transactions</h5>
         <button className="card-btn" onClick={onSeeMore}>
           See All <LuArrowRight className="text-base" />
         </button>

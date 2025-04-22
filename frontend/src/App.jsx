@@ -7,6 +7,7 @@ import Income from "./pages/Dashboard/Income";
 import Expense from "./pages/Dashboard/Expense";
 import { ToastContainer, toast } from "react-toastify";
 import Navbar from "./components/layouts/Navbar";
+import MyProfile from "./pages/MyProfile";
 const App = () => {
   return (
     <div>
@@ -19,6 +20,7 @@ const App = () => {
         <Route path="/dashboard" element={<Home />} />
         <Route path="/income" element={<Income />} />
         <Route path="/expense" element={<Expense />} />
+        <Route path="/my-profile" element={<MyProfile />} />
       </Routes>
     </div>
   );

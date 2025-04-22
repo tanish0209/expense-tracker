@@ -8,7 +8,7 @@ import { IoMdCard } from "react-icons/io";
 import { LuHandCoins, LuWalletMinimal } from "react-icons/lu";
 import InfoCard from "../../components/cards/InfoCard";
 import RecentTransactions from "../../components/dashboard/RecentTransactions";
-import FinancialOverview from "../../components/dashboard/FinancialOverview";
+
 import ExpenseTransactions from "../../components/dashboard/ExpenseTransactions";
 import RecentIncome from "../../components/dashboard/RecentIncome";
 import LineChartFromTransactions from "../../components/dashboard/LineChartFromTransactions";
@@ -29,7 +29,6 @@ const Home = () => {
         },
       });
       if (res.data) {
-        console.log(res.data);
         setDashboardData(res.data);
       }
     } catch (error) {
@@ -44,38 +43,33 @@ const Home = () => {
   }, []);
   return (
     <DashboardLayout activeMenu="Dashboard">
-      <div className="my-5 mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <InfoCard
-            icon={<IoMdCard />}
-            label="Total Balance"
-            value={dashboardData?.totalBalance || 0}
-            color="bg-gray-700"
-          />
-          <InfoCard
-            icon={<LuWalletMinimal />}
-            label="Total Income"
-            value={dashboardData?.totalIncome || 0}
-            color="bg-gray-700"
-          />
-          <InfoCard
-            icon={<LuHandCoins />}
-            label="Total Expense"
-            value={dashboardData?.totalExpenses || 0}
-            color="bg-gray-700"
-          />
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <div className="my-3 mx-auto">
+        <div className="grid grid-cols-1  md:grid-cols-2  gap-6 ">
+          <div className="card grid grid-cols-1 bg-linear-to-r via-indigo-400 from-purple-400 to-violet-600 text-primary border-gray-400 gap-3">
+            <InfoCard
+              icon={<IoMdCard />}
+              label="Total Balance"
+              value={dashboardData?.totalBalance || 0}
+              color="bg-fuchsia-800"
+            />
+            <InfoCard
+              icon={<LuWalletMinimal />}
+              label="Total Income"
+              value={dashboardData?.totalIncome || 0}
+              color="bg-fuchsia-800"
+            />
+            <InfoCard
+              icon={<LuHandCoins />}
+              label="Total Expense"
+              value={dashboardData?.totalExpenses || 0}
+              color="bg-fuchsia-800"
+            />
+          </div>
           <RecentTransactions
             transactions={dashboardData?.recentTransactions}
             onSeeMore={() => navigate("/expense")}
           />
-          <FinancialOverview
-            totalBalance={dashboardData?.totalBalance || 0}
-            totalIncome={dashboardData?.totalIncome || 0}
-            totalExpenses={dashboardData?.totalExpenses || 0}
-          />
+
           <ExpenseTransactions
             transactions={dashboardData?.last30DaysExpenses?.transactions || []}
             onSeeMore={() => navigate("/expense")}
@@ -87,7 +81,7 @@ const Home = () => {
         </div>
         <div className="py-6">
           <LineChartFromTransactions
-            transactions={dashboardData?.recentTransactions}
+            transactions={dashboardData?.allTransactions}
           />
         </div>
       </div>

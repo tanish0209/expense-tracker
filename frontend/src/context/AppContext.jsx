@@ -1,7 +1,6 @@
 import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
-import { useUserAuth } from "../hooks/useUserAuth";
 
 export const AppContext = createContext();
 const AppContextProvider = (props) => {
@@ -20,33 +19,38 @@ const AppContextProvider = (props) => {
   const clearUser = () => {
     setUser(null);
   };
-  // const loadUserData = async () => {
-  //   try {
-  //     const { data } = await axios.get(backendUrl + "/api/v1/auth/getUser", {
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-  //     if (data.success) {
-  //       setUser(data.user);
-  //     } else {
-  //       toast.error(data.message);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //     toast.error(error.message);
-  //   }
-  // };
+
+  //loading user data
+  const loadUserData = async () => {
+    try {
+      const { data } = await axios.get(backendUrl + "/api/v1/auth/getUser", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (data.success) {
+        setUser(data.user);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error(error.message);
+    }
+  };
   const values = {
     backendUrl,
     token,
+    setToken,
     user,
     updateUser,
     clearUser,
   };
-  // useEffect(() => {
-  //   if (token) {
-  //     loadUserData();
-  //   }
-  // }, [token]);
+  useEffect(() => {
+    if (token) {
+      loadUserData();
+    } else {
+      setUser(null);
+    }
+  }, [token]);
 
   return (
     <AppContext.Provider value={values}>{props.children}</AppContext.Provider>

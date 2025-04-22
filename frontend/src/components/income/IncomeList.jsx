@@ -13,7 +13,7 @@ const IncomeList = ({ transactions, onDelete, onDownload }) => {
           <LuDownload className="text-base" /> Download
         </button>
       </div>
-      <div className="grid grid-cols-1 ">
+      <div className="grid grid-cols-1 text-md">
         {transactions.income?.map((item) => (
           <TransactionsInfoCard
             key={item.id}
