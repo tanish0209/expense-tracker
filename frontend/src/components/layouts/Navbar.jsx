@@ -1,18 +1,21 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import userimage from "../../assets/userimage.png";
 import dropdown_icon from "../../assets/dropdown_icon.png";
 import { useNavigate, NavLink } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
+import axios from "axios";
 
 const Navbar = ({ activeMenu }) => {
-  const { token, user, clearUser } = useContext(AppContext);
+  const { token, user, setUser, clearUser, backendUrl } =
+    useContext(AppContext);
   const [openSideMenu, setOpenSideMenu] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
   const logout = () => {
     clearUser;
     localStorage.removeItem("token");
+    navigate("/login");
   };
   return (
     <div className="sticky top-5 py-3 px-2 md:px-8 md:w-fit w-10/12 text-primary bg-white/20 flex place-self-center items-center justify-center gap-5 sm:gap-10 md:gap-20  border-b-gray-400 z-10 backdrop-blur-lg rounded-2xl">
@@ -132,7 +135,7 @@ const Navbar = ({ activeMenu }) => {
         ) : (
           <button
             onClick={() => navigate("/login")}
-            className="bg-primary text-white px-8 py-4 rounded-full font-medium hidden md:block"
+            className="bg-primary text-secondary px-8 py-4 rounded-full font-medium hidden md:block"
           >
             Create Account
           </button>

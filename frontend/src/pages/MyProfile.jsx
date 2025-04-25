@@ -1,10 +1,32 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import DashboardLayout from "../components/layouts/DashboardLayout";
 import userimage from "../assets/userimage.png";
 import { AppContext } from "../context/AppContext";
+import axios from "axios";
 
 const MyProfile = () => {
-  const { user } = useContext(AppContext);
+  const { user, backendUrl, setUser } = useContext(AppContext);
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("token");
+
+        const res = await axios.get(backendUrl + "/api/v1/auth/getUser", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.data.success) {
+          setUser(res.data.userData);
+        }
+      } catch (err) {
+        console.log("Error fetching user:", err);
+      }
+    };
+
+    fetchUser();
+  }, []);
   return (
     <DashboardLayout>
       <div className="card m-5 w-96 md:w-2xl lg:w-4xl place-self-center">
