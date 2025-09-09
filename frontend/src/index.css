@@ -1,0 +1,23 @@
+@import url("https://fonts.googleapis.com/css2?family=Raleway:ital,wght@0,100..900;1,100..900&display=swap");
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #ffffff;
+  --color-secondary: #000000;
+}
+@layer base {
+  body {
+    background-color: oklch(20.5% 0 0);
+    overflow-x: hidden;
+    font-family: "Raleway", sans-serif;
+  }
+}
+.card {
+  @apply p-6 rounded-2xl border border-gray-400;
+}
+.card-btn {
+  @apply flex items-center gap-3 text-[12px] font-medium text-secondary bg-primary hover:text-primary hover:bg-indigo-400 px-4 py-1.5 rounded-2xl border border-gray-400 transition-all duration-300;
+}
+.add-btn {
+  @apply flex items-center gap-1.5 text-sm md:text-lg font-medium text-secondary bg-primary hover:text-primary hover:bg-indigo-400 px-4 py-3 rounded-2xl border border-gray-400 transition-all duration-300;
+}
