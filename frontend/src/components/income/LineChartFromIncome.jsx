@@ -50,7 +50,7 @@ const LineChartFromIncome = ({ transactions = [] }) => {
   }, [transactions, selectedMonth, selectedYear]);
 
   const years = Array.from({ length: 5 }, (_, i) => now.year() - i);
-  const months = moment.months();
+  const months = moment.monthsShort();
 
   return (
     <div className="h-[360px] sm:h-[400px] md:h-[500px] lg:h-[550px] text-white">
@@ -89,7 +89,7 @@ const LineChartFromIncome = ({ transactions = [] }) => {
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}
-            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+            margin={{ top: 5, right: 0, left: 0, bottom: 2 }}
           >
             <defs>
               <linearGradient id="incomeGradient" x1="0" y1="0" x2="0" y2="1">

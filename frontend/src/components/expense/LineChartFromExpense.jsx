@@ -89,7 +89,7 @@ const LineChartFromExpense = ({ transactions = [] }) => {
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}
-            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+            margin={{ top: 5, right: 0, left: 0, bottom: 2 }}
           >
             <defs>
               <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
