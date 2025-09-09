@@ -7,5 +7,5 @@ const Exprouter = express.Router();
 Exprouter.post("/add", protect, addExpense);
 Exprouter.get("/get", protect, getAllExpense);
 Exprouter.get("/downloadexcel", protect, downloadExpenseExcel);
-Exprouter.delete("/:id", protect, deleteExpense);
+Exprouter.delete("/delete/:id", protect, deleteExpense);
 export default Exprouter;

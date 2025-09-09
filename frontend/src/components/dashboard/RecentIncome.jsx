@@ -46,9 +46,9 @@ const RecentIncome = ({ transactions, onSeeMore }) => {
             </p>
             <p
               className="text-right font-semibold 
-                      place-self-end px-3 py-1.5 text-xs sm:text-sm  rounded-md w-fit bg-red-50 text-red-500"
+                      place-self-end px-3 py-1.5 text-xs sm:text-sm  rounded-md w-fit bg-green-50 text-green-500"
             >
-              - &#8377; {income.amount}
+              + &#8377; {income.amount}
             </p>
           </div>
         ))}
