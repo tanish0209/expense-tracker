@@ -1,7 +1,5 @@
 import React, { useMemo, useState } from "react";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -52,7 +50,7 @@ const LineChartFromExpense = ({ transactions = [] }) => {
   }, [transactions, selectedMonth, selectedYear]);
 
   const years = Array.from({ length: 5 }, (_, i) => now.year() - i);
-  const months = moment.months();
+  const months = moment.monthsShort(); // <-- MMM format months
 
   return (
     <div className=" h-[360px] sm:h-[400px] md:h-[500px] lg:h-[550px] text-white">

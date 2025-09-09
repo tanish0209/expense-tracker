@@ -44,8 +44,8 @@ const Home = () => {
   return (
     <DashboardLayout activeMenu="Dashboard">
       <div className="my-3 mx-auto">
-        <div className="grid grid-cols-1  md:grid-cols-2  gap-6 ">
-          <div className="card grid grid-cols-1 bg-linear-to-r via-indigo-400 from-purple-400 to-violet-600 text-primary border-gray-400 gap-3">
+        <div className="grid grid-cols-1  md:grid-cols-2  gap-4 ">
+          <div className="card grid grid-cols-1 bg-linear-to-r via-indigo-400 from-purple-400 to-violet-600 text-primary border-gray-400 gap-2">
             <InfoCard
               icon={<IoMdCard />}
               label="Total Balance"

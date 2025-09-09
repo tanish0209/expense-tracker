@@ -1,7 +1,5 @@
 import React, { useMemo, useState } from "react";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -30,7 +28,8 @@ const LineChartFromTransactions = ({ transactions }) => {
     const dailyTotals = Array.from({ length: daysInMonth }, (_, i) => {
       const date = startOfMonth.clone().date(i + 1);
       return {
-        date: date.format("DD MMM"),
+        date: date.format("DD"), // ✅ Only day shown
+        fullDate: date.format("DD MMM"), // ✅ keep full for tooltip
         income: 0,
         expenses: 0,
       };
@@ -55,7 +54,8 @@ const LineChartFromTransactions = ({ transactions }) => {
   }, [transactions, selectedMonth, selectedYear]);
 
   const years = Array.from({ length: 5 }, (_, i) => now.year() - i);
-  const months = moment.months();
+  const months = moment.monthsShort(); // MMM format
+
   return (
     <div className="card h-[400px] sm:h-[450px] md:h-[550px] lg:h-[600px] text-white">
       <div className="flex border-b pb-4 justify-between items-center mb-4">
@@ -97,11 +97,11 @@ const LineChartFromTransactions = ({ transactions }) => {
         </div>
       </div>
 
-      <div className="w-full h-[250px] sm:h-[350px] md:h-[450px] lg:h-[500px] md:p-5 lg:p-10 ">
+      <div className="w-full h-[250px] sm:h-[350px] md:h-[450px] lg:h-[500px] md:p-5 lg:p-10">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}
-            margin={{ top: 5, right: 5, left: 5, bottom: 5 }}
+            margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
           >
             <defs>
               <linearGradient id="greenShadow" x1="0" y1="0" x2="0" y2="1">
@@ -125,6 +125,13 @@ const LineChartFromTransactions = ({ transactions }) => {
             <YAxis stroke="#ccc" />
             <Tooltip
               contentStyle={{ backgroundColor: "#000", borderRadius: "8px" }}
+              formatter={(value, name, props) => [
+                value,
+                name.charAt(0).toUpperCase() + name.slice(1),
+              ]}
+              labelFormatter={(label, payload) =>
+                payload?.[0]?.payload?.fullDate || label
+              } // ✅ show full "DD MMM" in tooltip
             />
             <Legend />
 

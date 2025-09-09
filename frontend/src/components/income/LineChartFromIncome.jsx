@@ -1,7 +1,5 @@
 import React, { useMemo, useState } from "react";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   Tooltip,
@@ -79,11 +77,7 @@ const LineChartFromIncome = ({ transactions = [] }) => {
             className="bg-black text-white p-1 rounded border border-white hover:bg-gray-800 focus:outline-none"
           >
             {years.map((year) => (
-              <option
-                key={year}
-                value={year}
-                className="bg-black text-white hover:bg-gray-800"
-              >
+              <option key={year} value={year}>
                 {year}
               </option>
             ))}
