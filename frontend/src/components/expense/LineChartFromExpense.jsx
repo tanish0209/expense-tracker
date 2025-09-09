@@ -105,8 +105,9 @@ const LineChartFromExpense = ({ transactions = [] }) => {
               stroke="#ccc"
               tick={{ angle: -90, dy: 30 }}
               height={70}
+              fontSize={14}
             />
-            <YAxis stroke="#ccc" />
+            <YAxis stroke="#ccc" fontSize={14} />
             <Tooltip
               contentStyle={{ backgroundColor: "#000", borderRadius: "8px" }}
             />

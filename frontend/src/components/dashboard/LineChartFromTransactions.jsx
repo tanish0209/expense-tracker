@@ -60,7 +60,8 @@ const LineChartFromTransactions = ({ transactions }) => {
     <div className="card h-[400px] sm:h-[450px] md:h-[550px] lg:h-[600px] text-white">
       <div className="flex border-b pb-4 justify-between items-center mb-4">
         <h2 className="text-lg md:text-xl font-semibold">
-          Daily Income vs Expenses - {months[selectedMonth]} {selectedYear}
+          Daily Income vs Expenses - <br className="md:hidden" />
+          {months[selectedMonth]} {selectedYear}
         </h2>
         <div className="flex gap-1 md:gap-2">
           <select
@@ -101,7 +102,7 @@ const LineChartFromTransactions = ({ transactions }) => {
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}
-            margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
+            margin={{ top: 5, right: 0, left: 0, bottom: 2 }}
           >
             <defs>
               <linearGradient id="greenShadow" x1="0" y1="0" x2="0" y2="1">
@@ -121,8 +122,9 @@ const LineChartFromTransactions = ({ transactions }) => {
               stroke="#ccc"
               tick={{ angle: -90, dy: 30 }}
               height={70}
+              fontSize={14}
             />
-            <YAxis stroke="#ccc" />
+            <YAxis stroke="#ccc" fontSize={14} />
             <Tooltip
               contentStyle={{ backgroundColor: "#000", borderRadius: "8px" }}
               formatter={(value, name, props) => [
