@@ -19,7 +19,7 @@ const PageLoader = () => (
 
 const App = () => {
   return (
-    <div className="min-h-screen bg-neutral-900 text-white selection:bg-purple-500 selection:text-white flex flex-col">
+    <div className="min-h-screen bg-neutral-900 text-white selection:bg-purple-500 selection:text-white">
       <ToastContainer position="top-right" autoClose={3000} theme="dark" />
       <Navbar />
       <Suspense fallback={<PageLoader />}>

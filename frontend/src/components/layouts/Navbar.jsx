@@ -19,7 +19,7 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="sticky top-2 md:top-3 mx-auto w-11/12 max-w-7xl px-4 md:px-6 py-1.5 md:py-2 bg-neutral-800/80 backdrop-blur-xl border border-white/10 rounded-xl flex items-center justify-between z-50 shadow-xl transition-all">
+    <nav className="sticky top-3 mx-auto w-fit px-6 py-2 bg-neutral-800/80 backdrop-blur-xl border border-white/10 rounded-2xl flex items-center justify-between gap-6 md:gap-12 z-50 shadow-xl transition-all">
       {/* Brand Logo */}
       <button
         className="text-white text-sm md:text-base font-extrabold tracking-wider shadow-md cursor-pointer hover:opacity-90 transition-opacity"
