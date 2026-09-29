@@ -1,23 +1,51 @@
 import xlsx from "xlsx";
 import incomeModel from "../models/Income.js";
+import Account from "../models/Account.js";
 
 const addIncome = async (req, res) => {
     const userId = req.user.id;
 
     try {
-        const { icon, source, amount, date } = req.body;
+        const { icon, source, amount, date, accountId } = req.body;
         if (!source || !amount || !date) {
             return res.json({ success: false, message: "All Fields Are Required" });
         }
+
+        // Find or fallback to target account
+        let targetAccount = null;
+        if (accountId) {
+            targetAccount = await Account.findOne({ _id: accountId, userId });
+        }
+        if (!targetAccount) {
+            targetAccount = await Account.findOne({ userId }).sort({ isDefault: -1, createdAt: 1 });
+            if (!targetAccount) {
+                targetAccount = await Account.create({
+                    userId,
+                    name: "Main Savings Bank",
+                    type: "savings",
+                    balance: 0,
+                    icon: "🏦",
+                    isDefault: true,
+                });
+            }
+        }
+
+        const numericAmount = Number(amount);
         const newIncome = new incomeModel({
             userId,
+            accountId: targetAccount._id,
             icon,
             source,
-            amount: Number(amount),
+            amount: numericAmount,
             date: new Date(date)
         });
         await newIncome.save();
-        res.json({ success: true, newIncome });
+
+        // Update target account balance
+        targetAccount.balance = Number(targetAccount.balance || 0) + numericAmount;
+        await targetAccount.save();
+
+        res.json({ success: true, newIncome, updatedAccountBalance: targetAccount.balance });
     } catch (error) {
         console.error("Add income error:", error);
         res.status(500).json({ success: false, message: "Server Error" });
@@ -27,7 +55,11 @@ const addIncome = async (req, res) => {
 const getAllIncome = async (req, res) => {
     const userId = req.user.id;
     try {
-        const income = await incomeModel.find({ userId }).sort({ date: -1 }).lean();
+        const income = await incomeModel
+            .find({ userId })
+            .populate("accountId", "name icon type color")
+            .sort({ date: -1 })
+            .lean();
         res.json({ success: true, income });
     } catch (error) {
         console.error("Get income error:", error);
@@ -42,6 +74,16 @@ const deleteIncome = async (req, res) => {
         if (!deletedItem) {
             return res.status(404).json({ success: false, message: "Income not found or unauthorized" });
         }
+
+        // Reverse account balance update
+        if (deletedItem.accountId) {
+            const targetAccount = await Account.findOne({ _id: deletedItem.accountId, userId });
+            if (targetAccount) {
+                targetAccount.balance = Number(targetAccount.balance || 0) - Number(deletedItem.amount || 0);
+                await targetAccount.save();
+            }
+        }
+
         res.json({ success: true, message: "Income Deleted Successfully" });
     } catch (error) {
         console.error("Delete income error:", error);
@@ -52,10 +94,11 @@ const deleteIncome = async (req, res) => {
 const downloadIncomeExcel = async (req, res) => {
     const userId = req.user.id;
     try {
-        const income = await incomeModel.find({ userId }).sort({ date: -1 }).lean();
+        const income = await incomeModel.find({ userId }).populate("accountId", "name").sort({ date: -1 }).lean();
 
         const data = income.map((item) => ({
             Source: item.source,
+            Account: item.accountId?.name || "N/A",
             Amount: item.amount,
             Date: item.date ? new Date(item.date).toLocaleDateString() : ""
         }));

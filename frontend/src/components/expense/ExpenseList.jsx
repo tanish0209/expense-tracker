@@ -45,6 +45,7 @@ const ExpenseList = ({ transactions, onDelete, onDownload }) => {
               <div className="flex items-center">
                 <TransactionsInfoCard
                   title={expense.category}
+                  subtitle={expense.accountId?.name}
                   icon={expense.icon}
                   type="expense"
                   amount={expense.amount}

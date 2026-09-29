@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoutes.js";
 import incomeRoutes from './routes/incomeRoutes.js';
 import expenseRoutes from "./routes/ExpenseRoutes.js";
 import Dashrouter from "./routes/dashboardRoutes.js";
+import accountRoutes from "./routes/accountRoutes.js";
 
 const app = express();
 app.use(compression());
@@ -26,5 +27,6 @@ app.use("/api/v1/auth", authRoutes)
 app.use("/api/v1/income", incomeRoutes)
 app.use("/api/v1/expense", expenseRoutes)
 app.use("/api/v1/dashboard", Dashrouter)
+app.use("/api/v1/accounts", accountRoutes)
 
 app.listen(PORT, () => console.log(`Server Running on port: ${PORT}`))

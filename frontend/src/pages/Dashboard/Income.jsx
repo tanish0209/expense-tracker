@@ -35,7 +35,7 @@ const Income = () => {
 
   //Handle Add income
   const handleAddIncome = async (income) => {
-    const { source, amount, date, icon } = income;
+    const { source, amount, date, icon, accountId } = income;
     if (!source) {
       toast.error("Source is required");
       return;
@@ -49,7 +49,7 @@ const Income = () => {
       return;
     }
     try {
-      await API.post("/api/v1/income/add", { source, amount, date, icon });
+      await API.post("/api/v1/income/add", { source, amount, date, icon, accountId });
       setOpenAddIncomeModal(false);
       toast.success("Income added successfully!");
       fetchIncome();

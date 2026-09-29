@@ -35,7 +35,7 @@ const Expense = () => {
 
   //Handle Add Expense
   const handleAddExpense = async (expense) => {
-    const { category, amount, date, icon } = expense;
+    const { category, amount, date, icon, accountId } = expense;
     if (!category) {
       toast.error("Category is required");
       return;
@@ -49,7 +49,7 @@ const Expense = () => {
       return;
     }
     try {
-      await API.post("/api/v1/expense/add", { category, amount, date, icon });
+      await API.post("/api/v1/expense/add", { category, amount, date, icon, accountId });
       setOpenAddExpenseModal(false);
       toast.success("Expense added successfully!");
       fetchExpense();

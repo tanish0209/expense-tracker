@@ -32,9 +32,9 @@ const RecentTransactions = ({ transactions, onSeeMore }) => {
           transactions.slice(0, 5).map((item, index) => (
             <div
               key={item._id || item.id || index}
-              className="grid grid-cols-[5fr_3fr_4fr] py-3 px-4 items-center hover:bg-neutral-700/30 rounded-lg transition-all"
+              className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[5fr_3fr_4fr] py-2.5 sm:py-3 px-2 sm:px-4 items-center gap-2 sm:gap-4 hover:bg-neutral-700/30 rounded-lg transition-all"
             >
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 overflow-hidden">
                 <TransactionsInfoCard
                   title={item.type === "expense" ? item.category : item.source}
                   icon={item.icon}
@@ -44,12 +44,12 @@ const RecentTransactions = ({ transactions, onSeeMore }) => {
                   compact
                 />
               </div>
-              <p className="text-center font-medium text-xs md:text-sm text-gray-300">
+              <p className="text-center font-medium text-[11px] sm:text-xs md:text-sm text-gray-400 sm:text-gray-300 whitespace-nowrap">
                 {moment(item.date).format("Do MMM YYYY")}
               </p>
-              <div className="flex justify-end">
+              <div className="flex justify-end shrink-0">
                 <p
-                  className={`font-bold px-3 py-1 text-xs rounded-lg w-fit ${
+                  className={`font-bold px-2.5 py-1 text-xs rounded-lg w-fit whitespace-nowrap ${
                     item.type === "expense"
                       ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
                       : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"

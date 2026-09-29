@@ -3,6 +3,7 @@ import { LuUtensils, LuTrash2 } from "react-icons/lu";
 
 const TransactionsInfoCard = ({
   title,
+  subtitle,
   icon,
   type,
   amount,
@@ -33,6 +34,9 @@ const TransactionsInfoCard = ({
 
       <div className="flex-1">
         <p className="text-xs md:text-sm text-gray-200 font-medium">{title}</p>
+        {subtitle && (
+          <p className="text-[10px] text-gray-400 font-normal truncate">{subtitle}</p>
+        )}
       </div>
 
       {/* Delete button always visible */}

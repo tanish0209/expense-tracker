@@ -8,6 +8,7 @@ const SignUp = lazy(() => import("./pages/Auth/SignUp"));
 const Home = lazy(() => import("./pages/Dashboard/Home"));
 const Income = lazy(() => import("./pages/Dashboard/Income"));
 const Expense = lazy(() => import("./pages/Dashboard/Expense"));
+const Accounts = lazy(() => import("./pages/Dashboard/Accounts"));
 const MyProfile = lazy(() => import("./pages/MyProfile"));
 const Landing = lazy(() => import("./pages/Landing"));
 
@@ -31,6 +32,7 @@ const App = () => {
           <Route path="/dashboard" element={<Home />} />
           <Route path="/income" element={<Income />} />
           <Route path="/expense" element={<Expense />} />
+          <Route path="/accounts" element={<Accounts />} />
           <Route path="/my-profile" element={<MyProfile />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

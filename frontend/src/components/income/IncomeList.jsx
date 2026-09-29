@@ -45,6 +45,7 @@ const IncomeList = ({ transactions, onDelete, onDownload }) => {
               <div className="flex items-center">
                 <TransactionsInfoCard
                   title={income.source}
+                  subtitle={income.accountId?.name}
                   icon={income.icon}
                   type="income"
                   amount={income.amount}

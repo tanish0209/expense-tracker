@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import EmojiPickerPop from "../EmojiPickerPop";
+import API from "../../utils/api";
 
 const AddExpenseForm = ({ onAddExpense }) => {
   const [expense, setExpense] = useState({
@@ -7,7 +8,28 @@ const AddExpenseForm = ({ onAddExpense }) => {
     amount: "",
     date: "",
     icon: "",
+    accountId: "",
   });
+  const [accounts, setAccounts] = useState([]);
+
+  useEffect(() => {
+    const fetchAccounts = async () => {
+      try {
+        const res = await API.get("/api/v1/accounts/get");
+        if (res.data?.success && res.data.accounts) {
+          setAccounts(res.data.accounts);
+          const defaultAcc = res.data.accounts.find((a) => a.isDefault) || res.data.accounts[0];
+          if (defaultAcc) {
+            setExpense((prev) => ({ ...prev, accountId: defaultAcc._id }));
+          }
+        }
+      } catch (error) {
+        console.error("Error loading accounts in form:", error);
+      }
+    };
+    fetchAccounts();
+  }, []);
+
   const handleChange = (key, value) => setExpense({ ...expense, [key]: value });
 
   return (
@@ -16,9 +38,27 @@ const AddExpenseForm = ({ onAddExpense }) => {
         icon={expense.icon}
         onSelect={(selectedIcon) => handleChange("icon", selectedIcon)}
       />
+
       <div>
         <label className="block text-xs font-semibold text-gray-300 mb-1">
-          Expense Category
+          Pay From Account / Card *
+        </label>
+        <select
+          value={expense.accountId}
+          className="w-full bg-neutral-900 border border-neutral-700 rounded-xl text-sm text-white px-3 py-2.5 focus:outline-none focus:border-rose-500 transition-all"
+          onChange={({ target }) => handleChange("accountId", target.value)}
+        >
+          {accounts.map((acc) => (
+            <option key={acc._id} value={acc._id} className="bg-neutral-900">
+              {acc.icon || "💳"} {acc.name} ({acc.type === "credit" ? "Owed" : "Bal"}: ₹{Number(acc.balance || 0).toLocaleString()})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-gray-300 mb-1">
+          Expense Category *
         </label>
         <input
           value={expense.category}
@@ -29,9 +69,10 @@ const AddExpenseForm = ({ onAddExpense }) => {
           required
         />
       </div>
+
       <div>
         <label className="block text-xs font-semibold text-gray-300 mb-1">
-          Expense Amount (₹)
+          Expense Amount (₹) *
         </label>
         <input
           value={expense.amount}
@@ -42,9 +83,10 @@ const AddExpenseForm = ({ onAddExpense }) => {
           required
         />
       </div>
+
       <div>
         <label className="block text-xs font-semibold text-gray-300 mb-1">
-          Expense Date
+          Expense Date *
         </label>
         <input
           value={expense.date}
@@ -54,6 +96,7 @@ const AddExpenseForm = ({ onAddExpense }) => {
           required
         />
       </div>
+
       <div className="flex justify-end pt-2">
         <button
           type="button"
