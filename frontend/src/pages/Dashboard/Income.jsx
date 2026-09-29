@@ -99,7 +99,7 @@ const Income = () => {
   if (loading) {
     return (
       <DashboardLayout activeMenu="Income">
-        <div className="my-5 mx-auto max-w-7xl space-y-6">
+        <div className="my-2 md:my-4 mx-auto space-y-3 md:space-y-6">
           <SkeletonCard />
           <SkeletonList />
         </div>
@@ -109,8 +109,8 @@ const Income = () => {
 
   return (
     <DashboardLayout activeMenu="Income">
-      <div className="my-5 mx-auto max-w-7xl text-primary">
-        <div className="grid grid-cols-1 gap-6">
+      <div className="my-2 md:my-4 mx-auto text-primary">
+        <div className="grid grid-cols-1 gap-3 md:gap-6">
           <div>
             <IncomeOverview
               transactions={incomeData}

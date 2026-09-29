@@ -39,13 +39,13 @@ const Home = () => {
   if (loading) {
     return (
       <DashboardLayout activeMenu="Dashboard">
-        <div className="my-5 mx-auto max-w-7xl space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="my-2 md:my-4 mx-auto space-y-3 md:space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
             <SkeletonCard />
             <SkeletonCard />
             <SkeletonCard />
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
             <SkeletonList />
             <SkeletonList />
           </div>
@@ -57,23 +57,23 @@ const Home = () => {
 
   return (
     <DashboardLayout activeMenu="Dashboard">
-      <div className="my-3 mx-auto max-w-7xl">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="card grid grid-cols-1 bg-gradient-to-r via-indigo-500 from-purple-500 to-violet-600 text-white rounded-2xl p-4 md:p-6 shadow-xl gap-4">
+      <div className="my-2 md:my-4 mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
+          <div className="card grid grid-cols-1 bg-gradient-to-r via-indigo-500 from-purple-500 to-violet-600 text-white rounded-2xl p-3 sm:p-4 md:p-6 shadow-xl gap-3 md:gap-4">
             <InfoCard
-              icon={<IoMdCard className="text-2xl" />}
+              icon={<IoMdCard className="text-xl md:text-2xl" />}
               label="Total Balance"
               value={dashboardData?.totalBalance || 0}
               color="bg-fuchsia-800/80"
             />
             <InfoCard
-              icon={<LuWalletMinimal className="text-2xl" />}
+              icon={<LuWalletMinimal className="text-xl md:text-2xl" />}
               label="Total Income"
               value={dashboardData?.totalIncome || 0}
               color="bg-emerald-800/80"
             />
             <InfoCard
-              icon={<LuHandCoins className="text-2xl" />}
+              icon={<LuHandCoins className="text-xl md:text-2xl" />}
               label="Total Expense"
               value={dashboardData?.totalExpenses || 0}
               color="bg-rose-800/80"
@@ -93,7 +93,7 @@ const Home = () => {
             onSeeMore={() => navigate("/income")}
           />
         </div>
-        <div className="py-6">
+        <div className="py-3 md:py-6">
           <LineChartFromTransactions
             transactions={dashboardData?.allTransactions}
           />

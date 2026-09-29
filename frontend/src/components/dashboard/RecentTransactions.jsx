@@ -5,7 +5,7 @@ import TransactionsInfoCard from "../cards/TransactionsInfoCard";
 
 const RecentTransactions = ({ transactions, onSeeMore }) => {
   return (
-    <div className="bg-neutral-800/80 border border-neutral-700/80 rounded-2xl p-4 md:p-6 shadow-xl backdrop-blur-xl text-white">
+    <div className="bg-neutral-800/80 border border-neutral-700/80 rounded-2xl p-3 sm:p-4 md:p-6 shadow-xl backdrop-blur-xl text-white">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-neutral-700/60 pb-4">
         <h5 className="text-base md:text-lg font-bold tracking-wide text-gray-100">Recent Transactions</h5>
