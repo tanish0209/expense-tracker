@@ -20,11 +20,13 @@ export default defineConfig({
   build: {
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor-charts': ['recharts'],
-          'vendor-excel': ['xlsx'],
-          'vendor-icons': ['react-icons', 'lucide-react'],
-          'vendor-utils': ['axios', 'moment', 'validator']
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('recharts')) return 'vendor-charts';
+            if (id.includes('react-icons')) return 'vendor-icons';
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) return 'vendor-react';
+            return 'vendor';
+          }
         }
       }
     }
