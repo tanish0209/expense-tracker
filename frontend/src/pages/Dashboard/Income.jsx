@@ -1,43 +1,38 @@
-import React, { useContext, useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
 import IncomeOverview from "../../components/income/IncomeOverview";
-import axios from "axios";
-import { AppContext } from "../../context/AppContext";
-import { useEffect } from "react";
+import API from "../../utils/api";
 import Modal from "../../components/Modal";
 import AddIncomeForm from "../../components/income/AddIncomeForm";
 import { toast } from "react-toastify";
 import IncomeList from "../../components/income/IncomeList";
 import DeleteAlert from "../../components/DeleteAlert";
+import { SkeletonCard, SkeletonList } from "../../components/SkeletonLoader";
 
 const Income = () => {
   const [incomeData, setIncomeData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [openDeleteAlert, setOpenDeleteAlert] = useState({
     show: false,
     data: null,
   });
-  const { backendUrl } = useContext(AppContext);
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
 
   //Get All Income Details
-  const fetchIncome = async () => {
-    if (loading) return;
-    setLoading(true);
+  const fetchIncome = useCallback(async () => {
     try {
-      const res = await axios.get(backendUrl + "/api/v1/income/get", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      if (res.data) {
-        setIncomeData(res.data);
-        console.log(res.data);
+      setLoading(true);
+      const res = await API.get("/api/v1/income/get");
+      if (res.data?.success) {
+        setIncomeData(res.data.income || res.data);
       }
     } catch (error) {
-      console.log("Error:", error);
+      console.error("Error fetching income:", error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
+
   //Handle Add income
   const handleAddIncome = async (income) => {
     const { source, amount, date, icon } = income;
@@ -51,48 +46,37 @@ const Income = () => {
     }
     if (!date) {
       toast.error("Date is required");
+      return;
     }
     try {
-      await axios.post(
-        backendUrl + "/api/v1/income/add",
-        { source, amount, date, icon },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      await API.post("/api/v1/income/add", { source, amount, date, icon });
       setOpenAddIncomeModal(false);
       toast.success("Income added successfully!");
       fetchIncome();
     } catch (error) {
-      console.log("Error adding income:", error);
+      console.error("Error adding income:", error);
+      toast.error("Failed to add income");
     }
   };
+
   //delete income
   const deleteIncome = async (id) => {
-    console.log("Attempting to delete income with ID:", id);
     try {
-      await axios.delete(backendUrl + `/api/v1/income/delete/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      await API.delete(`/api/v1/income/delete/${id}`);
       setOpenDeleteAlert({ show: false, data: null });
       toast.success("Income details deleted successfully");
       fetchIncome();
     } catch (error) {
-      console.log("Error deleting income:", error);
+      console.error("Error deleting income:", error);
+      toast.error("Failed to delete income");
     }
   };
+
   //handle Download Income Details
   const handleDownloadIncomeDetails = async () => {
     try {
-      const res = await axios.get(backendUrl + "/api/v1/income/downloadexcel", {
+      const res = await API.get("/api/v1/income/downloadexcel", {
         responseType: "blob",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
       });
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
@@ -103,16 +87,29 @@ const Income = () => {
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.log("Error downloading income details", error);
+      console.error("Error downloading income details:", error);
+      toast.error("Failed to download file");
     }
   };
+
   useEffect(() => {
     fetchIncome();
-    return () => {};
-  }, []);
+  }, [fetchIncome]);
+
+  if (loading) {
+    return (
+      <DashboardLayout activeMenu="Income">
+        <div className="my-5 mx-auto max-w-7xl space-y-6">
+          <SkeletonCard />
+          <SkeletonList />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout activeMenu="Income">
-      <div className="my-5 mx-auto text-primary">
+      <div className="my-5 mx-auto max-w-7xl text-primary">
         <div className="grid grid-cols-1 gap-6">
           <div>
             <IncomeOverview

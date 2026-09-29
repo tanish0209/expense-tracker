@@ -2,50 +2,45 @@ import React, { useContext, useEffect } from "react";
 import DashboardLayout from "../components/layouts/DashboardLayout";
 import userimage from "../assets/userimage.png";
 import { AppContext } from "../context/AppContext";
-import axios from "axios";
+import API from "../utils/api";
 
 const MyProfile = () => {
-  const { user, backendUrl, setUser } = useContext(AppContext);
+  const { user, setUser } = useContext(AppContext);
+
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const token = localStorage.getItem("token");
-
-        const res = await axios.get(backendUrl + "/api/v1/auth/getUser", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (res.data.success) {
-          setUser(res.data.userData);
+        const res = await API.get("/api/v1/auth/getUser");
+        if (res.data?.success && res.data?.user) {
+          setUser(res.data.user);
         }
       } catch (err) {
-        console.log("Error fetching user:", err);
+        console.error("Error fetching user profile:", err);
       }
     };
 
     fetchUser();
-  }, []);
+  }, [setUser]);
+
   return (
-    <DashboardLayout>
-      <div className="card m-5 w-96 md:w-2xl lg:w-4xl place-self-center">
-        <h2 className="text-2xl font-bold">User Information</h2>
-        <div className="flex-col justify-center items-center place-self-center">
-          <div className="flex justify-center items-center ">
-            <img
-              src={userimage}
-              className="rounded-full items-center w-20 h-20 border p-1 m-8"
-              alt=""
-            />
-          </div>
-          <div className="flex gap-3 border border-gray-200 w-80 md:w-xl max-w-2xl py-5 px-2 lg:px-7 lg:m-3 m-1 rounded-2xl">
-            <h3 className="text-lg lg:text-2xl font-bold">User Name:</h3>
-            <p className="text-lg lg:text-2xl font-semibold">{user.name}</p>
-          </div>
-          <div className="border border-gray-200 w-80 md:w-xl max-w-2xl py-5 px-2 lg:p-7 lg:m-3 m-1 rounded-2xl flex gap-3">
-            <h3 className="text-md lg:text-2xl font-bold">User Mail ID:</h3>
-            <p className="text-md lg:text-2xl font-semibold">{user.email}</p>
+    <DashboardLayout activeMenu="My Profile">
+      <div className="bg-neutral-800/80 border border-neutral-700/80 rounded-2xl p-6 shadow-xl max-w-2xl mx-auto my-8 backdrop-blur-xl text-white">
+        <h2 className="text-2xl font-bold border-b border-neutral-700/60 pb-4 mb-6">User Profile</h2>
+        <div className="flex flex-col items-center gap-6">
+          <img
+            src={userimage}
+            className="rounded-full w-24 h-24 border-2 border-purple-500/50 p-1 object-cover shadow-lg"
+            alt="User Avatar"
+          />
+          <div className="w-full space-y-4">
+            <div className="bg-neutral-900/60 border border-neutral-700/60 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+              <span className="text-sm font-semibold text-gray-400">Full Name</span>
+              <span className="text-lg font-bold text-white">{user?.name || "N/A"}</span>
+            </div>
+            <div className="bg-neutral-900/60 border border-neutral-700/60 rounded-xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+              <span className="text-sm font-semibold text-gray-400">Email Address</span>
+              <span className="text-lg font-bold text-white">{user?.email || "N/A"}</span>
+            </div>
           </div>
         </div>
       </div>

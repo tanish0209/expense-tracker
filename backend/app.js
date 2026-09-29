@@ -1,13 +1,15 @@
 import express from "express";
 import cors from 'cors';
+import compression from 'compression';
 import "dotenv/config";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
-import incomeRoutes from './routes/incomeRoutes.js'
-import expenseRoutes from "./routes/ExpenseRoutes.js"
+import incomeRoutes from './routes/incomeRoutes.js';
+import expenseRoutes from "./routes/ExpenseRoutes.js";
 import Dashrouter from "./routes/dashboardRoutes.js";
 
 const app = express();
+app.use(compression());
 app.use(cors({
     origin: ["http://localhost:5173",
         "https://expense-tracker-rkt3.onrender.com"],// your frontend URL

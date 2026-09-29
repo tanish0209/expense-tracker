@@ -12,8 +12,21 @@ export default defineConfig({
       },
     },
   },
-  plugins: [react(),
-  tailwindcss(),
+  plugins: [
+    react(),
+    tailwindcss(),
   ],
-  server: { host: true }
+  server: { host: true },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'vendor-charts': ['recharts'],
+          'vendor-excel': ['xlsx'],
+          'vendor-icons': ['react-icons', 'lucide-react'],
+          'vendor-utils': ['axios', 'moment', 'validator']
+        }
+      }
+    }
+  }
 })

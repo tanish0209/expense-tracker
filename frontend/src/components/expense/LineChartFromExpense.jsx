@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, memo } from "react";
 import {
   XAxis,
   YAxis,
@@ -11,14 +11,13 @@ import {
 } from "recharts";
 import moment from "moment";
 
-const LineChartFromExpense = ({ transactions = [] }) => {
+const LineChartFromExpense = memo(({ transactions = [] }) => {
   const now = moment();
   const [selectedMonth, setSelectedMonth] = useState(now.month());
   const [selectedYear, setSelectedYear] = useState(now.year());
 
   const chartData = useMemo(() => {
-    if (!Array.isArray(transactions)) return [];
-
+    const list = Array.isArray(transactions) ? transactions : [];
     const startOfMonth = moment()
       .year(selectedYear)
       .month(selectedMonth)
@@ -28,12 +27,14 @@ const LineChartFromExpense = ({ transactions = [] }) => {
     const dailyTotals = Array.from({ length: daysInMonth }, (_, i) => {
       const date = startOfMonth.clone().date(i + 1);
       return {
-        date: date.format("DD MMM"),
+        date: date.format("DD"),
+        fullDate: date.format("DD MMM YYYY"),
         expense: 0,
       };
     });
 
-    transactions.forEach((txn) => {
+    list.forEach((txn) => {
+      if (!txn.date) return;
       const txnDate = moment(txn.date);
       if (
         txnDate.year() === selectedYear &&
@@ -49,23 +50,23 @@ const LineChartFromExpense = ({ transactions = [] }) => {
     return dailyTotals;
   }, [transactions, selectedMonth, selectedYear]);
 
-  const years = Array.from({ length: 5 }, (_, i) => now.year() - i);
-  const months = moment.monthsShort(); // <-- MMM format months
+  const years = useMemo(() => Array.from({ length: 5 }, (_, i) => now.year() - i), [now]);
+  const months = useMemo(() => moment.monthsShort(), []);
 
   return (
-    <div className=" h-[360px] sm:h-[400px] md:h-[500px] lg:h-[550px] text-white">
-      <div className="flex border-b pb-4 justify-between items-center mb-4">
-        <h2 className="text-lg md:text-xl font-semibold">
-          Expense Overview - {months[selectedMonth]} {selectedYear}
-        </h2>
-        <div className="flex gap-1 md:gap-2">
+    <div className="w-full text-white">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-neutral-700/60 pb-3 mb-4">
+        <h6 className="text-sm font-semibold text-gray-300">
+          Monthly Trend - {months[selectedMonth]} {selectedYear}
+        </h6>
+        <div className="flex gap-2">
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            className="bg-black text-white md:p-2 rounded border border-white hover:bg-gray-800 focus:outline-none"
+            className="bg-neutral-900 text-gray-200 text-xs px-2.5 py-1.5 rounded-lg border border-neutral-700 hover:border-rose-500 focus:outline-none transition-all"
           >
             {months.map((month, index) => (
-              <option key={month} value={index}>
+              <option key={month} value={index} className="bg-neutral-900 text-white">
                 {month}
               </option>
             ))}
@@ -74,10 +75,10 @@ const LineChartFromExpense = ({ transactions = [] }) => {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className="bg-black text-white p-1 rounded border border-white hover:bg-gray-800 focus:outline-none"
+            className="bg-neutral-900 text-gray-200 text-xs px-2.5 py-1.5 rounded-lg border border-neutral-700 hover:border-rose-500 focus:outline-none transition-all"
           >
             {years.map((year) => (
-              <option key={year} value={year}>
+              <option key={year} value={year} className="bg-neutral-900 text-white">
                 {year}
               </option>
             ))}
@@ -85,40 +86,34 @@ const LineChartFromExpense = ({ transactions = [] }) => {
         </div>
       </div>
 
-      <div className="w-full h-[250px] sm:h-[350px] md:h-[450px] lg:h-[500px] md:p-5 lg:p-10 ">
+      <div className="w-full h-[250px] sm:h-[300px]">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart
-            data={chartData}
-            margin={{ top: 5, right: 0, left: 0, bottom: 2 }}
-          >
+          <AreaChart data={chartData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
             <defs>
               <linearGradient id="expenseGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#FF0000" stopOpacity={0.6} />
-                <stop offset="100%" stopColor="#FF0000" stopOpacity={0.2} />
+                <stop offset="5%" stopColor="#EF4444" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#EF4444" stopOpacity={0.0} />
               </linearGradient>
             </defs>
-
-            <CartesianGrid strokeDasharray="3 3" stroke="#444" />
-            <XAxis
-              dataKey="date"
-              interval={2}
-              stroke="#ccc"
-              tick={{ angle: -90, dy: 30 }}
-              height={70}
-              fontSize={14}
-            />
-            <YAxis stroke="#ccc" fontSize={14} />
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
+            <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fontSize: 11 }} />
+            <YAxis stroke="#9CA3AF" fontSize={11} />
             <Tooltip
-              contentStyle={{ backgroundColor: "#000", borderRadius: "8px" }}
+              contentStyle={{
+                backgroundColor: "#171717",
+                borderColor: "#404040",
+                borderRadius: "10px",
+              }}
+              formatter={(val) => [`₹ ${val}`, "Expenses"]}
+              labelFormatter={(lbl, payload) => payload?.[0]?.payload?.fullDate || `Day ${lbl}`}
             />
             <Legend />
-
             <Area
               type="monotone"
               dataKey="expense"
-              stroke="#FF0000"
-              fill="url(#expenseGradient)"
+              stroke="#EF4444"
               strokeWidth={2}
+              fill="url(#expenseGradient)"
               name="Expenses"
             />
           </AreaChart>
@@ -126,6 +121,6 @@ const LineChartFromExpense = ({ transactions = [] }) => {
       </div>
     </div>
   );
-};
+});
 
 export default LineChartFromExpense;

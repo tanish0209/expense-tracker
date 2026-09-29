@@ -1,147 +1,165 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
 import userimage from "../../assets/userimage.png";
 import dropdown_icon from "../../assets/dropdown_icon.png";
 import { useNavigate, NavLink } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
-import axios from "axios";
 
-const Navbar = ({ activeMenu }) => {
-  const { token, user, setUser, clearUser, backendUrl } =
-    useContext(AppContext);
+const Navbar = () => {
+  const { token, user, clearUser } = useContext(AppContext);
   const [openSideMenu, setOpenSideMenu] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
+
   const logout = () => {
-    clearUser;
+    if (clearUser) clearUser();
     localStorage.removeItem("token");
+    setShowDropdown(false);
     navigate("/login");
   };
-  return (
-    <div className="sticky top-5 py-3 px-2 md:px-8 md:w-fit w-10/12 text-primary bg-white/10 flex place-self-center items-center justify-center gap-5 sm:gap-10 md:gap-20  border-b-gray-400 z-10 backdrop-blur-lg rounded-2xl">
-      {/* mobile menu */}
-      {token && user ? (
-        <button
-          className="block lg:hidden z-30"
-          onClick={() => setOpenSideMenu((prev) => !prev)}
-        >
-          {openSideMenu ? (
-            <HiOutlineX className="text-2xl" />
-          ) : (
-            <HiOutlineMenu className="text-2xl" />
-          )}
-        </button>
-      ) : (
-        ""
-      )}
 
-      <div
-        className={`${
-          openSideMenu ? "fixed" : "hidden"
-        } lg:hidden left-0 top-0 w-fit h-fit z-20 pt-14 `}
-      >
-        <ul className="flex flex-col items-center gap-2 mt-5 sticky bg-neutral-700 backdrop-blur-2xl text-lg border-b-gray-400 z-80 rounded-2xl font-medium">
-          <NavLink to={"/dashboard"} onClick={() => setOpenSideMenu(false)}>
-            <p className="px-4 py-2 rounded inline-block ">Home</p>
-          </NavLink>
-          <NavLink to={"/income"} onClick={() => setOpenSideMenu(false)}>
-            <p className="px-4 py-2 rounded inline-block">Income</p>
-          </NavLink>
-          <NavLink to={"/expense"} onClick={() => setOpenSideMenu(false)}>
-            <p className="px-4 py-2 rounded inline-block">Expenses</p>
-          </NavLink>
-        </ul>
-      </div>
+  return (
+    <nav className="sticky top-2 md:top-3 mx-auto w-11/12 max-w-7xl px-4 md:px-6 py-1.5 md:py-2 bg-neutral-800/80 backdrop-blur-xl border border-white/10 rounded-xl flex items-center justify-between z-50 shadow-xl transition-all">
+      {/* Brand Logo */}
       <button
-        className=" rounded-3xl py-2.5 px-3 border hover:bg-primary hover:text-secondary border-gray-100 transition-all duration-300"
-        onClick={() => navigate("/dashboard")}
+        className="text-white text-sm md:text-base font-extrabold tracking-wider shadow-md cursor-pointer hover:opacity-90 transition-opacity"
+        onClick={() => navigate(token ? "/dashboard" : "/landing")}
       >
-        <p className="font-extrabold text-md">EAZYTRACK</p>
+        EAZYTRACK
       </button>
 
-      <ul className="hidden lg:flex gap-4 text-lg font-bold ">
-        <NavLink
-          to="/dashboard"
-          className={({ isActive }) =>
-            `py-1 text-center ${isActive ? "text-primary" : ""}`
-          }
-        >
-          <li className="hover:bg-gray-500 py-1.5 px-4 rounded-md transition-all duration-100">
-            Home
-            {window.location.pathname === "/dashboard" && (
-              <hr className="border-none outline-none h-0.5 bg-primary w-4/5 m-auto" />
-            )}
-          </li>
-        </NavLink>
-
-        <NavLink
-          to="/income"
-          className={({ isActive }) =>
-            `py-1 text-center ${isActive ? "text-primary" : ""}`
-          }
-        >
-          <li className="hover:bg-gray-500 py-1.5 px-4 rounded-md transition-all duration-100">
-            Income
-            {window.location.pathname === "/income" && (
-              <hr className="border-none outline-none h-0.5 bg-primary w-4/5 m-auto" />
-            )}
-          </li>
-        </NavLink>
-
-        <NavLink
-          to="/expense"
-          className={({ isActive }) =>
-            `py-1 text-center ${isActive ? "text-primary" : ""}`
-          }
-        >
-          <li className="hover:bg-gray-500 py-1.5 px-4 rounded-md transition-all duration-100">
-            Expense
-            {window.location.pathname === "/expense" && (
-              <hr className="border-none outline-none h-0.5 bg-primary w-4/5 m-auto" />
-            )}
-          </li>
-        </NavLink>
-      </ul>
-
-      <div>
-        {token && user ? (
-          <div
-            className="flex items-center gap-2 cursor-pointer group z-50 relative"
-            onClick={() => setShowDropdown((prev) => !prev)}
+      {/* Desktop Navigation */}
+      {token && user && (
+        <ul className="hidden lg:flex items-center gap-1.5 text-xs md:text-sm font-semibold">
+          <NavLink
+            to="/dashboard"
+            className={({ isActive }) =>
+              `px-3 py-1 md:py-1.5 rounded-lg transition-all duration-200 ${
+                isActive
+                  ? "bg-indigo-600/30 text-indigo-400 font-bold border border-indigo-500/30 shadow-sm"
+                  : "text-gray-300 hover:text-white hover:bg-white/5"
+              }`
+            }
           >
-            <img className="w-8 rounded-full" src={userimage} alt="" />
-            <img className="w-2.5" src={dropdown_icon} alt="" />
+            Home
+          </NavLink>
+
+          <NavLink
+            to="/income"
+            className={({ isActive }) =>
+              `px-3 py-1 md:py-1.5 rounded-lg transition-all duration-200 ${
+                isActive
+                  ? "bg-emerald-600/30 text-emerald-400 font-bold border border-emerald-500/30 shadow-sm"
+                  : "text-gray-300 hover:text-white hover:bg-white/5"
+              }`
+            }
+          >
+            Income
+          </NavLink>
+
+          <NavLink
+            to="/expense"
+            className={({ isActive }) =>
+              `px-3 py-1 md:py-1.5 rounded-lg transition-all duration-200 ${
+                isActive
+                  ? "bg-rose-600/30 text-rose-400 font-bold border border-rose-500/30 shadow-sm"
+                  : "text-gray-300 hover:text-white hover:bg-white/5"
+              }`
+            }
+          >
+            Expenses
+          </NavLink>
+        </ul>
+      )}
+
+      {/* Profile & Mobile Menu Toggle */}
+      <div className="flex items-center gap-3">
+        {token && user ? (
+          <div className="relative">
             <div
-              className={`absolute top-0 -right-10 sm:-right-32 md:-right-8 pt-14 text-base font-medium text-gray-300 ${
-                showDropdown ? "block" : "hidden"
-              } group-hover:block`}
+              className="flex items-center gap-1.5 cursor-pointer p-1 rounded-lg hover:bg-white/10 transition-all"
+              onClick={() => setShowDropdown((prev) => !prev)}
             >
-              <div className="min-w-48 bg-neutral-700 backdrop-blur rounded-2xl z-10 flex flex-col gap-4 p-4 ">
-                <p
-                  onClick={() => navigate("/my-profile")}
-                  className="hover:text-primary cursor-pointer w-full h-full"
+              <img className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover border border-purple-500/50" src={userimage} alt="User Profile" />
+              <img className={`w-2.5 md:w-3 transition-transform duration-200 ${showDropdown ? "rotate-180" : ""}`} src={dropdown_icon} alt="dropdown arrow" />
+            </div>
+
+            {/* Dropdown Menu */}
+            {showDropdown && (
+              <div
+                className="absolute right-0 mt-2 w-48 bg-neutral-800 border border-neutral-700 backdrop-blur-xl rounded-xl shadow-2xl p-2 z-50 space-y-1 animate-in fade-in slide-in-from-top-2"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="px-3 py-2 border-b border-neutral-700/50 mb-1">
+                  <p className="text-sm font-semibold text-white truncate">{user.name || "User"}</p>
+                  <p className="text-xs text-gray-400 truncate">{user.email || ""}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setShowDropdown(false);
+                    navigate("/my-profile");
+                  }}
+                  className="w-full text-left px-3 py-1.5 text-xs md:text-sm text-gray-200 hover:bg-neutral-700/60 rounded-lg transition-colors flex items-center gap-2 cursor-pointer"
                 >
                   My Profile
-                </p>
-                <p
-                  onClick={() => logout()}
-                  className="hover:text-primary cursor-pointer"
+                </button>
+                <button
+                  onClick={logout}
+                  className="w-full text-left px-3 py-1.5 text-xs md:text-sm text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors flex items-center gap-2 font-medium cursor-pointer"
                 >
                   Logout
-                </p>
+                </button>
               </div>
-            </div>
+            )}
           </div>
         ) : (
           <button
             onClick={() => navigate("/login")}
-            className="bg-primary text-secondary px-8 py-4 rounded-full font-medium hidden md:block"
+            className="bg-indigo-600 hover:bg-indigo-500 text-white px-3.5 py-1.5 rounded-lg font-medium text-xs md:text-sm transition-all shadow-md cursor-pointer"
           >
-            Create Account
+            Sign In
+          </button>
+        )}
+
+        {/* Mobile Hamburger Button */}
+        {token && user && (
+          <button
+            className="lg:hidden p-1.5 rounded-lg text-gray-200 hover:bg-white/10 transition-colors cursor-pointer"
+            onClick={() => setOpenSideMenu((prev) => !prev)}
+            aria-label="Toggle Navigation Menu"
+          >
+            {openSideMenu ? <HiOutlineX className="text-xl" /> : <HiOutlineMenu className="text-xl" />}
           </button>
         )}
       </div>
-    </div>
+
+      {/* Mobile Drawer Navigation */}
+      {openSideMenu && (
+        <div className="fixed inset-x-4 top-14 bg-neutral-900/95 backdrop-blur-2xl border border-neutral-800 p-6 rounded-2xl shadow-2xl lg:hidden z-40 space-y-3">
+          <NavLink
+            to="/dashboard"
+            onClick={() => setOpenSideMenu(false)}
+            className="block px-4 py-3 rounded-xl bg-neutral-800/50 hover:bg-indigo-600/20 text-white font-medium transition-all"
+          >
+            Home
+          </NavLink>
+          <NavLink
+            to="/income"
+            onClick={() => setOpenSideMenu(false)}
+            className="block px-4 py-3 rounded-xl bg-neutral-800/50 hover:bg-emerald-600/20 text-white font-medium transition-all"
+          >
+            Income
+          </NavLink>
+          <NavLink
+            to="/expense"
+            onClick={() => setOpenSideMenu(false)}
+            className="block px-4 py-3 rounded-xl bg-neutral-800/50 hover:bg-rose-600/20 text-white font-medium transition-all"
+          >
+            Expenses
+          </NavLink>
+        </div>
+      )}
+    </nav>
   );
 };
 

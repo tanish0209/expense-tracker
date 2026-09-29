@@ -9,48 +9,55 @@ const AddIncomeForm = ({ onAddIncome }) => {
     icon: "",
   });
   const handleChange = (key, value) => setIncome({ ...income, [key]: value });
+
   return (
-    <div>
+    <div className="space-y-4">
       <EmojiPickerPop
         icon={income.icon}
         onSelect={(selectedIcon) => handleChange("icon", selectedIcon)}
       />
-      <div className="m-2">
-        <label className="text-md text-primary">Income Source</label>
+      <div>
+        <label className="block text-xs font-semibold text-gray-300 mb-1">
+          Income Source
+        </label>
         <input
           value={income.source}
-          className="w-full bg-transparent  border border-gray-300 p-3 mt-2 rounded-2xl"
+          className="w-full bg-neutral-900 border border-neutral-700 rounded-xl text-sm text-white px-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-neutral-500"
           onChange={({ target }) => handleChange("source", target.value)}
-          placeholder="Freelance,Salary,etc."
+          placeholder="e.g. Freelance, Salary, Investments"
           type="text"
+          required
         />
       </div>
-      <div className="m-2">
-        <label className="text-md text-primary">Income Amount</label>
+      <div>
+        <label className="block text-xs font-semibold text-gray-300 mb-1">
+          Income Amount (₹)
+        </label>
         <input
           value={income.amount}
-          className="no-spinner w-full bg-transparent  border border-gray-300 p-3 mt-2 rounded-2xl"
+          className="w-full bg-neutral-900 border border-neutral-700 rounded-xl text-sm text-white px-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-neutral-500"
           onChange={({ target }) => handleChange("amount", target.value)}
-          label="Amount"
-          placeholder="eg.5000"
+          placeholder="e.g. 5000"
           type="number"
+          required
         />
       </div>
-      <div className="m-2">
-        <label className="text-md text-primary">Income Date</label>
+      <div>
+        <label className="block text-xs font-semibold text-gray-300 mb-1">
+          Income Date
+        </label>
         <input
           value={income.date}
-          className="w-full bg-transparent  border border-gray-300 p-3 mt-2 rounded-2xl"
+          className="w-full bg-neutral-900 border border-neutral-700 rounded-xl text-sm text-white px-3 py-2.5 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all"
           onChange={({ target }) => handleChange("date", target.value)}
-          label="Income Date"
-          placeholder=""
           type="date"
+          required
         />
       </div>
-      <div className="flex justify-end mt-6">
+      <div className="flex justify-end pt-2">
         <button
           type="button"
-          className="add-btn add-btn-fill"
+          className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all shadow-md cursor-pointer"
           onClick={() => onAddIncome(income)}
         >
           Add Income

@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, memo } from "react";
 import {
   XAxis,
   YAxis,
@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import moment from "moment";
 
-const LineChartFromTransactions = ({ transactions }) => {
+const LineChartFromTransactions = memo(({ transactions }) => {
   const now = moment();
   const [selectedMonth, setSelectedMonth] = useState(now.month());
   const [selectedYear, setSelectedYear] = useState(now.year());
@@ -28,24 +28,27 @@ const LineChartFromTransactions = ({ transactions }) => {
     const dailyTotals = Array.from({ length: daysInMonth }, (_, i) => {
       const date = startOfMonth.clone().date(i + 1);
       return {
-        date: date.format("DD"), // ✅ Only day shown
-        fullDate: date.format("DD MMM"), // ✅ keep full for tooltip
+        date: date.format("DD"),
+        fullDate: date.format("DD MMM YYYY"),
         income: 0,
         expenses: 0,
       };
     });
 
     transactions.forEach((txn) => {
+      if (!txn.date) return;
       const txnDate = moment(txn.date);
       if (
         txnDate.year() === selectedYear &&
         txnDate.month() === selectedMonth
       ) {
         const dayIndex = txnDate.date() - 1;
-        if (txn.type === "income") {
-          dailyTotals[dayIndex].income += txn.amount;
-        } else if (txn.type === "expense") {
-          dailyTotals[dayIndex].expenses += txn.amount;
+        if (dayIndex >= 0 && dayIndex < daysInMonth) {
+          if (txn.type === "income") {
+            dailyTotals[dayIndex].income += Number(txn.amount) || 0;
+          } else if (txn.type === "expense") {
+            dailyTotals[dayIndex].expenses += Number(txn.amount) || 0;
+          }
         }
       }
     });
@@ -53,28 +56,28 @@ const LineChartFromTransactions = ({ transactions }) => {
     return dailyTotals;
   }, [transactions, selectedMonth, selectedYear]);
 
-  const years = Array.from({ length: 5 }, (_, i) => now.year() - i);
-  const months = moment.monthsShort(); // MMM format
+  const years = useMemo(() => Array.from({ length: 5 }, (_, i) => now.year() - i), [now]);
+  const months = useMemo(() => moment.monthsShort(), []);
 
   return (
-    <div className="card h-[400px] sm:h-[450px] md:h-[550px] lg:h-[600px] text-white">
-      <div className="flex border-b pb-4 justify-between items-center mb-4">
-        <h2 className="text-lg md:text-xl font-semibold">
-          Daily Income vs Expenses - <br className="md:hidden" />
-          {months[selectedMonth]} {selectedYear}
-        </h2>
-        <div className="flex gap-1 md:gap-2">
+    <div className="bg-neutral-800/80 border border-neutral-700/80 rounded-2xl p-4 md:p-6 shadow-xl text-white backdrop-blur-xl">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-neutral-700/60 pb-4 mb-4">
+        <div>
+          <h2 className="text-lg md:text-xl font-bold tracking-wide">
+            Daily Income vs Expenses
+          </h2>
+          <p className="text-xs md:text-sm text-gray-400">
+            {months[selectedMonth]} {selectedYear} overview
+          </p>
+        </div>
+        <div className="flex gap-2">
           <select
             value={selectedMonth}
             onChange={(e) => setSelectedMonth(Number(e.target.value))}
-            className="bg-black text-white md:p-2 rounded border border-white hover:bg-gray-800 focus:outline-none"
+            className="bg-neutral-900 text-gray-200 text-sm px-3 py-1.5 rounded-xl border border-neutral-700 hover:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
           >
             {months.map((m, i) => (
-              <option
-                value={i}
-                key={m}
-                className="bg-black text-white hover:bg-gray-800"
-              >
+              <option value={i} key={m} className="bg-neutral-900 text-white">
                 {m}
               </option>
             ))}
@@ -83,14 +86,10 @@ const LineChartFromTransactions = ({ transactions }) => {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(Number(e.target.value))}
-            className="bg-black text-white p-1 rounded border border-white hover:bg-gray-800 focus:outline-none"
+            className="bg-neutral-900 text-gray-200 text-sm px-3 py-1.5 rounded-xl border border-neutral-700 hover:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
           >
             {years.map((y) => (
-              <option
-                value={y}
-                key={y}
-                className="bg-black text-white hover:bg-gray-800"
-              >
+              <option value={y} key={y} className="bg-neutral-900 text-white">
                 {y}
               </option>
             ))}
@@ -98,59 +97,64 @@ const LineChartFromTransactions = ({ transactions }) => {
         </div>
       </div>
 
-      <div className="w-full h-[250px] sm:h-[350px] md:h-[450px] lg:h-[500px] md:p-5 lg:p-10">
+      <div className="w-full h-[280px] sm:h-[350px] md:h-[420px]">
         <ResponsiveContainer width="100%" height="100%">
           <AreaChart
             data={chartData}
-            margin={{ top: 5, right: 0, left: 0, bottom: 2 }}
+            margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
           >
             <defs>
               <linearGradient id="greenShadow" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="lime" stopOpacity={0.8} />
-                <stop offset="100%" stopColor="lime" stopOpacity={0.2} />
+                <stop offset="5%" stopColor="#10B981" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#10B981" stopOpacity={0.0} />
               </linearGradient>
               <linearGradient id="redShadow" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="red" stopOpacity={0.8} />
-                <stop offset="100%" stopColor="red" stopOpacity={0.2} />
+                <stop offset="5%" stopColor="#EF4444" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#EF4444" stopOpacity={0.0} />
               </linearGradient>
             </defs>
 
-            <CartesianGrid strokeDasharray="3 3" stroke="#444" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
             <XAxis
               dataKey="date"
-              interval={2}
-              stroke="#ccc"
-              tick={{ angle: -90, dy: 30 }}
-              height={70}
-              fontSize={14}
+              interval="preserveStartEnd"
+              stroke="#9CA3AF"
+              tick={{ fontSize: 12 }}
+              dy={5}
             />
-            <YAxis stroke="#ccc" fontSize={14} />
+            <YAxis stroke="#9CA3AF" fontSize={12} />
             <Tooltip
-              contentStyle={{ backgroundColor: "#000", borderRadius: "8px" }}
-              formatter={(value, name, props) => [
-                value,
+              contentStyle={{
+                backgroundColor: "#171717",
+                borderColor: "#404040",
+                borderRadius: "12px",
+                boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.5)"
+              }}
+              itemStyle={{ fontSize: 13 }}
+              formatter={(value, name) => [
+                `$${value}`,
                 name.charAt(0).toUpperCase() + name.slice(1),
               ]}
               labelFormatter={(label, payload) =>
-                payload?.[0]?.payload?.fullDate || label
-              } // ✅ show full "DD MMM" in tooltip
+                payload?.[0]?.payload?.fullDate || `Day ${label}`
+              }
             />
-            <Legend />
+            <Legend wrapperStyle={{ paddingTop: "10px" }} />
 
             <Area
               type="monotone"
               dataKey="income"
-              stroke="lime"
+              stroke="#10B981"
+              strokeWidth={2}
               fill="url(#greenShadow)"
-              fillOpacity={0.8}
               name="Income"
             />
             <Area
               type="monotone"
               dataKey="expenses"
-              stroke="red"
+              stroke="#EF4444"
+              strokeWidth={2}
               fill="url(#redShadow)"
-              fillOpacity={0.8}
               name="Expenses"
             />
           </AreaChart>
@@ -158,6 +162,6 @@ const LineChartFromTransactions = ({ transactions }) => {
       </div>
     </div>
   );
-};
+});
 
 export default LineChartFromTransactions;

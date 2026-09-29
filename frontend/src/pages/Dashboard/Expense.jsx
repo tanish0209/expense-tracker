@@ -1,48 +1,43 @@
-import React, { useContext, useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import DashboardLayout from "../../components/layouts/DashboardLayout";
-import axios from "axios";
-import { AppContext } from "../../context/AppContext";
-import { useEffect } from "react";
+import API from "../../utils/api";
 import Modal from "../../components/Modal";
 import { toast } from "react-toastify";
 import DeleteAlert from "../../components/DeleteAlert";
 import ExpenseOverview from "../../components/expense/ExpenseOverview";
 import AddExpenseForm from "../../components/expense/AddExpenseForm";
 import ExpenseList from "../../components/expense/ExpenseList";
+import { SkeletonCard, SkeletonList } from "../../components/SkeletonLoader";
 
 const Expense = () => {
   const [expenseData, setExpenseData] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [openDeleteAlert, setOpenDeleteAlert] = useState({
     show: false,
     data: null,
   });
-  const { backendUrl } = useContext(AppContext);
   const [openAddExpenseModal, setOpenAddExpenseModal] = useState(false);
 
   //Get All Expense Details
-  const fetchExpense = async () => {
-    if (loading) return;
-    setLoading(true);
+  const fetchExpense = useCallback(async () => {
     try {
-      const res = await axios.get(backendUrl + "/api/v1/expense/get", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-      if (res.data) {
-        setExpenseData(res.data);
-        console.log(res.data);
+      setLoading(true);
+      const res = await API.get("/api/v1/expense/get");
+      if (res.data?.success) {
+        setExpenseData(res.data.expense || res.data);
       }
     } catch (error) {
-      console.log("Error:", error);
+      console.error("Error fetching expense:", error);
+    } finally {
+      setLoading(false);
     }
-  };
+  }, []);
+
   //Handle Add Expense
   const handleAddExpense = async (expense) => {
     const { category, amount, date, icon } = expense;
     if (!category) {
-      toast.error("category is required");
+      toast.error("Category is required");
       return;
     }
     if (!amount || isNaN(amount) || Number(amount) <= 0) {
@@ -51,52 +46,38 @@ const Expense = () => {
     }
     if (!date) {
       toast.error("Date is required");
+      return;
     }
     try {
-      await axios.post(
-        backendUrl + "/api/v1/expense/add",
-        { category, amount, date, icon },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      await API.post("/api/v1/expense/add", { category, amount, date, icon });
       setOpenAddExpenseModal(false);
       toast.success("Expense added successfully!");
       fetchExpense();
     } catch (error) {
-      console.log("Error adding Expense:", error);
+      console.error("Error adding Expense:", error);
+      toast.error("Failed to add expense");
     }
   };
+
   //delete expense
   const deleteExpense = async (id) => {
-    console.log("Attempting to delete expense with ID:", id);
     try {
-      await axios.delete(backendUrl + `/api/v1/expense/delete/${id}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+      await API.delete(`/api/v1/expense/delete/${id}`);
       setOpenDeleteAlert({ show: false, data: null });
       toast.success("Expense details deleted successfully");
       fetchExpense();
     } catch (error) {
-      console.log("Error deleting expense:", error);
+      console.error("Error deleting expense:", error);
+      toast.error("Failed to delete expense");
     }
   };
+
   //handle Download expense Details
   const handleDownloadExpenseDetails = async () => {
     try {
-      const res = await axios.get(
-        backendUrl + "/api/v1/expense/downloadexcel",
-        {
-          responseType: "blob",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
+      const res = await API.get("/api/v1/expense/downloadexcel", {
+        responseType: "blob",
+      });
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -106,16 +87,29 @@ const Expense = () => {
       link.parentNode.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (error) {
-      console.log("Error downloading expense details", error);
+      console.error("Error downloading expense details:", error);
+      toast.error("Failed to download file");
     }
   };
+
   useEffect(() => {
     fetchExpense();
-    return () => {};
-  }, []);
+  }, [fetchExpense]);
+
+  if (loading) {
+    return (
+      <DashboardLayout activeMenu="Expense">
+        <div className="my-5 mx-auto max-w-7xl space-y-6">
+          <SkeletonCard />
+          <SkeletonList />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
   return (
     <DashboardLayout activeMenu="Expense">
-      <div className="my-5 mx-auto text-primary">
+      <div className="my-5 mx-auto max-w-7xl text-primary">
         <div className="grid grid-cols-1 gap-6">
           <div>
             <ExpenseOverview

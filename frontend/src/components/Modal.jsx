@@ -2,24 +2,30 @@ import React from "react";
 
 const Modal = ({ children, isOpen, onClose, title }) => {
   if (!isOpen) return null;
+
   return (
-    <div className="fixed top-0 right-0 left-0 z-50 flex justify-center items-center w-full h-[calc(100%-1rem)] max-h-full overflow-y-auto overflow-x-hidden bg-white/40 bg-opacity-50">
-      <div className="relative p-4 w-full max-w-2xl max-h-full">
-        {/* Model Content */}
-        <div className="relative bg-gray-900 rounded-lg ">
-          {/* Modal Header */}
-          <div className="flex items-center justify-between p-4 md:p-5 border-b rounded-t border-gray-500">
-            <h3 className="text-lg font-medium">{title}</h3>
-            <button
-              type="button"
-              className="bg-transparent rounded-xl font-bold border text-sm w-8 h-8 inline-flex justify-center items-center hover:bg-white hover:text-gray-900 cursor-pointer transition-all duration-300"
-              onClick={onClose}
-            >
-              X
-            </button>
-          </div>
-          {/* Modal Body */}
-          <div className="p-4 md:p-5 space-y-4">{children}</div>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md overflow-y-auto animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-lg bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col my-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800 bg-neutral-900/80">
+          <h3 className="text-lg font-bold text-white tracking-wide">{title}</h3>
+          <button
+            type="button"
+            className="text-gray-400 hover:text-white hover:bg-neutral-800 rounded-lg text-sm w-8 h-8 inline-flex justify-center items-center cursor-pointer transition-colors"
+            onClick={onClose}
+          >
+            ✕
+          </button>
+        </div>
+        {/* Modal Body */}
+        <div className="p-6 overflow-y-auto max-h-[calc(90vh-4rem)] space-y-4 text-gray-200">
+          {children}
         </div>
       </div>
     </div>
