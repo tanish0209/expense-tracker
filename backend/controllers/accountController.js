@@ -35,16 +35,38 @@ export const getAccounts = async (req, res) => {
     // Calculate aggregations
     let totalLiquidCash = 0;
     let totalCreditOwed = 0;
+    let totalAssets = 0;
 
     accounts.forEach((acc) => {
-      if (acc.type === "credit") {
-        totalCreditOwed += Number(acc.balance || 0);
+      const type = (acc.type || "").toLowerCase();
+      const name = (acc.name || "").toLowerCase();
+      const balance = Number(acc.balance || 0);
+
+      if (type === "credit") {
+        totalCreditOwed += balance;
       } else {
-        totalLiquidCash += Number(acc.balance || 0);
+        totalAssets += balance;
+        const isLiquid =
+          type === "cash" ||
+          type === "wallet" ||
+          type === "salary" ||
+          type === "checking" ||
+          name.includes("cash") ||
+          name.includes("salary") ||
+          name.includes("wallet") ||
+          name.includes("checking");
+        const isExcluded =
+          (type === "savings" && !name.includes("salary")) ||
+          type === "crypto" ||
+          type === "investment";
+
+        if (isLiquid && !isExcluded) {
+          totalLiquidCash += balance;
+        }
       }
     });
 
-    const netAssets = totalLiquidCash - totalCreditOwed;
+    const netAssets = totalAssets - totalCreditOwed;
 
     return res.status(200).json({
       success: true,

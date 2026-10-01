@@ -3,8 +3,6 @@ import DashboardLayout from "../../components/layouts/DashboardLayout";
 import { useUserAuth } from "../../hooks/useUserAuth";
 import { useNavigate } from "react-router-dom";
 import API from "../../utils/api";
-import { IoMdCard } from "react-icons/io";
-import { LuHandCoins, LuWalletMinimal } from "react-icons/lu";
 import InfoCard from "../../components/cards/InfoCard";
 import RecentTransactions from "../../components/dashboard/RecentTransactions";
 import ExpenseTransactions from "../../components/dashboard/ExpenseTransactions";
@@ -59,26 +57,7 @@ const Home = () => {
     <DashboardLayout activeMenu="Dashboard">
       <div className="my-2 md:my-4 mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-6">
-          <div className="card grid grid-cols-1 bg-gradient-to-r via-indigo-500 from-purple-500 to-violet-600 text-white rounded-2xl p-3 sm:p-4 md:p-6 shadow-xl gap-3 md:gap-4">
-            <InfoCard
-              icon={<IoMdCard className="text-xl md:text-2xl" />}
-              label="Total Balance"
-              value={dashboardData?.totalBalance || 0}
-              color="bg-fuchsia-800/80"
-            />
-            <InfoCard
-              icon={<LuWalletMinimal className="text-xl md:text-2xl" />}
-              label="Total Income"
-              value={dashboardData?.totalIncome || 0}
-              color="bg-emerald-800/80"
-            />
-            <InfoCard
-              icon={<LuHandCoins className="text-xl md:text-2xl" />}
-              label="Total Expense"
-              value={dashboardData?.totalExpenses || 0}
-              color="bg-rose-800/80"
-            />
-          </div>
+          <InfoCard dashboardData={dashboardData} />
           <RecentTransactions
             transactions={dashboardData?.recentTransactions}
             onSeeMore={() => navigate("/expense")}

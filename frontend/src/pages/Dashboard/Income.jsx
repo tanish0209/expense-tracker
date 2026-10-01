@@ -17,6 +17,7 @@ const Income = () => {
     data: null,
   });
   const [openAddIncomeModal, setOpenAddIncomeModal] = useState(false);
+  const [editingIncome, setEditingIncome] = useState(null);
 
   //Get All Income Details
   const fetchIncome = useCallback(async () => {
@@ -33,8 +34,8 @@ const Income = () => {
     }
   }, []);
 
-  //Handle Add income
-  const handleAddIncome = async (income) => {
+  //Handle Add or Update income
+  const handleSaveIncome = async (income) => {
     const { source, amount, date, icon, accountId } = income;
     if (!source) {
       toast.error("Source is required");
@@ -49,13 +50,25 @@ const Income = () => {
       return;
     }
     try {
-      await API.post("/api/v1/income/add", { source, amount, date, icon, accountId });
+      if (editingIncome) {
+        await API.put(`/api/v1/income/update/${editingIncome._id}`, {
+          source,
+          amount,
+          date,
+          icon,
+          accountId,
+        });
+        toast.success("Income details updated successfully!");
+      } else {
+        await API.post("/api/v1/income/add", { source, amount, date, icon, accountId });
+        toast.success("Income added successfully!");
+      }
       setOpenAddIncomeModal(false);
-      toast.success("Income added successfully!");
+      setEditingIncome(null);
       fetchIncome();
     } catch (error) {
-      console.error("Error adding income:", error);
-      toast.error("Failed to add income");
+      console.error("Error saving income:", error);
+      toast.error(editingIncome ? "Failed to update income" : "Failed to add income");
     }
   };
 
@@ -73,9 +86,14 @@ const Income = () => {
   };
 
   //handle Download Income Details
-  const handleDownloadIncomeDetails = async () => {
+  const handleDownloadIncomeDetails = async (dateBounds = {}) => {
     try {
+      const params = {};
+      if (dateBounds?.startDate) params.startDate = dateBounds.startDate;
+      if (dateBounds?.endDate) params.endDate = dateBounds.endDate;
+
       const res = await API.get("/api/v1/income/downloadexcel", {
+        params,
         responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([res.data]));
@@ -114,12 +132,19 @@ const Income = () => {
           <div>
             <IncomeOverview
               transactions={incomeData}
-              onAddIncome={() => setOpenAddIncomeModal(true)}
+              onAddIncome={() => {
+                setEditingIncome(null);
+                setOpenAddIncomeModal(true);
+              }}
             />
           </div>
           <div>
             <IncomeList
               transactions={incomeData}
+              onEdit={(incomeItem) => {
+                setEditingIncome(incomeItem);
+                setOpenAddIncomeModal(true);
+              }}
               onDelete={(id) => {
                 setOpenDeleteAlert({ show: true, data: id });
               }}
@@ -129,10 +154,16 @@ const Income = () => {
         </div>
         <Modal
           isOpen={openAddIncomeModal}
-          onClose={() => setOpenAddIncomeModal(false)}
-          title="Add Income"
+          onClose={() => {
+            setOpenAddIncomeModal(false);
+            setEditingIncome(null);
+          }}
+          title={editingIncome ? "Edit Income" : "Add Income"}
         >
-          <AddIncomeForm onAddIncome={handleAddIncome} />
+          <AddIncomeForm
+            initialData={editingIncome}
+            onAddIncome={handleSaveIncome}
+          />
         </Modal>
         <Modal
           isOpen={openDeleteAlert.show}

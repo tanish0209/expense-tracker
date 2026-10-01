@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import EmojiPickerPop from "../EmojiPickerPop";
 import API from "../../utils/api";
+import moment from "moment";
 
-const AddExpenseForm = ({ onAddExpense }) => {
+const AddExpenseForm = ({ onAddExpense, initialData = null }) => {
   const [expense, setExpense] = useState({
     category: "",
     amount: "",
@@ -13,14 +14,36 @@ const AddExpenseForm = ({ onAddExpense }) => {
   const [accounts, setAccounts] = useState([]);
 
   useEffect(() => {
+    if (initialData) {
+      setExpense({
+        category: initialData.category || "",
+        amount: initialData.amount !== undefined ? String(initialData.amount) : "",
+        date: initialData.date ? moment(initialData.date).format("YYYY-MM-DD") : "",
+        icon: initialData.icon || "",
+        accountId: initialData.accountId?._id || initialData.accountId || "",
+      });
+    } else {
+      setExpense({
+        category: "",
+        amount: "",
+        date: "",
+        icon: "",
+        accountId: "",
+      });
+    }
+  }, [initialData]);
+
+  useEffect(() => {
     const fetchAccounts = async () => {
       try {
         const res = await API.get("/api/v1/accounts/get");
         if (res.data?.success && res.data.accounts) {
           setAccounts(res.data.accounts);
-          const defaultAcc = res.data.accounts.find((a) => a.isDefault) || res.data.accounts[0];
-          if (defaultAcc) {
-            setExpense((prev) => ({ ...prev, accountId: defaultAcc._id }));
+          if (!initialData && !expense.accountId) {
+            const defaultAcc = res.data.accounts.find((a) => a.isDefault) || res.data.accounts[0];
+            if (defaultAcc) {
+              setExpense((prev) => ({ ...prev, accountId: defaultAcc._id }));
+            }
           }
         }
       } catch (error) {
@@ -28,9 +51,9 @@ const AddExpenseForm = ({ onAddExpense }) => {
       }
     };
     fetchAccounts();
-  }, []);
+  }, [initialData]);
 
-  const handleChange = (key, value) => setExpense({ ...expense, [key]: value });
+  const handleChange = (key, value) => setExpense((prev) => ({ ...prev, [key]: value }));
 
   return (
     <div className="space-y-4">
@@ -50,7 +73,7 @@ const AddExpenseForm = ({ onAddExpense }) => {
         >
           {accounts.map((acc) => (
             <option key={acc._id} value={acc._id} className="bg-neutral-900">
-              {acc.icon || "💳"} {acc.name} ({acc.type === "credit" ? "Owed" : "Bal"}: ₹{Number(acc.balance || 0).toLocaleString()})
+              {acc.icon || "💳"} {acc.name} ({acc.type === "credit" ? "Owed" : "Bal"}: ₹{Number(acc.balance || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
             </option>
           ))}
         </select>
@@ -103,7 +126,7 @@ const AddExpenseForm = ({ onAddExpense }) => {
           className="w-full sm:w-auto bg-rose-600 hover:bg-rose-500 text-white text-sm font-semibold px-6 py-2.5 rounded-xl transition-all shadow-md cursor-pointer"
           onClick={() => onAddExpense(expense)}
         >
-          Add Expense
+          {initialData ? "Update Expense" : "Add Expense"}
         </button>
       </div>
     </div>

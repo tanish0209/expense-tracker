@@ -1,5 +1,6 @@
 import incomeModel from "../models/Income.js";
 import expenseModel from "../models/Expense.js";
+import Account from "../models/Account.js";
 import { Types } from "mongoose";
 
 const getDashboardData = async (req, res) => {
@@ -18,7 +19,8 @@ const getDashboardData = async (req, res) => {
             recentIncomeList,
             recentExpenseList,
             allIncomeList,
-            allExpenseList
+            allExpenseList,
+            userAccountsRaw
         ] = await Promise.all([
             incomeModel.aggregate([
                 { $match: { userId: userObjectId } },
@@ -39,8 +41,58 @@ const getDashboardData = async (req, res) => {
             incomeModel.find({ userId: userObjectId }).sort({ date: -1 }).limit(5).lean(),
             expenseModel.find({ userId: userObjectId }).sort({ date: -1 }).limit(5).lean(),
             incomeModel.find({ userId: userObjectId }).sort({ date: -1 }).lean(),
-            expenseModel.find({ userId: userObjectId }).sort({ date: -1 }).lean()
+            expenseModel.find({ userId: userObjectId }).sort({ date: -1 }).lean(),
+            Account.find({ userId: userObjectId }).sort({ isDefault: -1, createdAt: 1 }).lean()
         ]);
+
+        let accounts = userAccountsRaw || [];
+        if (accounts.length === 0) {
+            accounts = await Account.insertMany([
+                {
+                    userId: userObjectId,
+                    name: "Main Savings Bank",
+                    type: "savings",
+                    balance: 0,
+                    icon: "🏦",
+                    color: "from-indigo-600 to-blue-700",
+                    isDefault: true,
+                },
+                {
+                    userId: userObjectId,
+                    name: "Cash Wallet",
+                    type: "cash",
+                    balance: 0,
+                    icon: "💵",
+                    color: "from-emerald-600 to-teal-700",
+                    isDefault: false,
+                },
+            ]);
+        }
+
+        // Calculate Net Liquid Balance (Cash + Salary + Checking + Wallet, strictly excluding savings & investments)
+        let totalLiquidBalance = 0;
+        accounts.forEach((acc) => {
+            const type = (acc.type || "").toLowerCase();
+            const name = (acc.name || "").toLowerCase();
+            const isLiquid =
+                type === "cash" ||
+                type === "wallet" ||
+                type === "salary" ||
+                type === "checking" ||
+                name.includes("cash") ||
+                name.includes("salary") ||
+                name.includes("wallet") ||
+                name.includes("checking");
+            const isExcluded =
+                (type === "savings" && !name.includes("salary")) ||
+                type === "credit" ||
+                type === "crypto" ||
+                type === "investment";
+
+            if (isLiquid && !isExcluded) {
+                totalLiquidBalance += Number(acc.balance || 0);
+            }
+        });
 
         const totalIncomeVal = totalIncomeRes[0]?.totalIncome || 0;
         const totalExpenseVal = totalExpenseRes[0]?.totalIncome || 0;
@@ -65,9 +117,10 @@ const getDashboardData = async (req, res) => {
 
         return res.json({
             success: true,
-            totalBalance: totalIncomeVal - totalExpenseVal,
+            totalBalance: totalLiquidBalance,
             totalIncome: totalIncomeVal,
             totalExpenses: totalExpenseVal,
+            accounts: accounts,
             last30DaysExpenses: {
                 total: expenseLast30Days,
                 transactions: last30DaysExpenseTransactions

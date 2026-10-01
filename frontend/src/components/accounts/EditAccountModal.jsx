@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Modal from "../Modal";
 import { LuBriefcase, LuLandmark, LuCreditCard, LuWallet, LuCoins, LuBuilding2 } from "react-icons/lu";
 
@@ -41,33 +41,43 @@ const renderTypeOutlineIcon = (type) => {
   }
 };
 
-const AddAccountModal = ({ isOpen, onClose, onAddAccount }) => {
+const EditAccountModal = ({ isOpen, onClose, account, onUpdateAccount }) => {
   const [formData, setFormData] = useState({
     name: "",
     type: "savings",
-    balance: "",
+    balance: 0,
     creditLimit: "",
-    currency: "INR",
     accountNumberLast4: "",
     color: "from-indigo-600 to-blue-700",
   });
 
+  useEffect(() => {
+    if (account) {
+      setFormData({
+        name: account.name || "",
+        type: account.type || "savings",
+        balance: account.balance !== undefined ? account.balance : 0,
+        creditLimit: account.creditLimit !== undefined ? String(account.creditLimit) : "",
+        accountNumberLast4: account.accountNumberLast4 || "",
+        color: account.color || "from-indigo-600 to-blue-700",
+      });
+    }
+  }, [account]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAddAccount(formData);
-    setFormData({
-      name: "",
-      type: "savings",
-      balance: "",
-      creditLimit: "",
-      currency: "INR",
-      accountNumberLast4: "",
-      color: "from-indigo-600 to-blue-700",
+    if (!account) return;
+    onUpdateAccount(account._id, {
+      name: formData.name,
+      type: formData.type,
+      creditLimit: formData.type === "credit" ? Number(formData.creditLimit || 0) : 0,
+      accountNumberLast4: formData.accountNumberLast4,
+      color: formData.color,
     });
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Add New Account / Wallet">
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Account Details">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-xs font-semibold text-gray-300 mb-1">
@@ -76,7 +86,7 @@ const AddAccountModal = ({ isOpen, onClose, onAddAccount }) => {
           <input
             type="text"
             required
-            placeholder="e.g. HDFC Salary, Chase Checking, Amex Card"
+            placeholder="e.g. Main Savings Bank, HDFC Card"
             className="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -109,54 +119,6 @@ const AddAccountModal = ({ isOpen, onClose, onAddAccount }) => {
 
           <div>
             <label className="block text-xs font-semibold text-gray-300 mb-1">
-              Currency
-            </label>
-            <select
-              className="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
-              value={formData.currency}
-              onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-            >
-              <option value="INR" className="bg-neutral-900">₹ INR</option>
-              <option value="USD" className="bg-neutral-900">$ USD</option>
-              <option value="EUR" className="bg-neutral-900">€ EUR</option>
-              <option value="GBP" className="bg-neutral-900">£ GBP</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs font-semibold text-gray-300 mb-1">
-              {formData.type === "credit" ? "Current Credit Balance Owed" : "Initial Balance"} (₹)
-            </label>
-            <input
-              type="number"
-              step="any"
-              placeholder="0.00"
-              className="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
-              value={formData.balance}
-              onChange={(e) => setFormData({ ...formData, balance: e.target.value })}
-            />
-          </div>
-
-          {formData.type === "credit" && (
-            <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-1">
-                Credit Limit (₹)
-              </label>
-              <input
-                type="number"
-                step="any"
-                placeholder="100000"
-                className="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
-                value={formData.creditLimit}
-                onChange={(e) => setFormData({ ...formData, creditLimit: e.target.value })}
-              />
-            </div>
-          )}
-
-          <div>
-            <label className="block text-xs font-semibold text-gray-300 mb-1">
               Last 4 Digits (Optional)
             </label>
             <input
@@ -169,6 +131,39 @@ const AddAccountModal = ({ isOpen, onClose, onAddAccount }) => {
             />
           </div>
         </div>
+
+        {/* Readonly Balance Field */}
+        <div>
+          <label className="block text-xs font-semibold text-gray-300 mb-1">
+            Account Balance (Read-Only)
+          </label>
+          <input
+            type="text"
+            disabled
+            readOnly
+            className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-sm text-gray-400 cursor-not-allowed font-semibold"
+            value={`₹ ${Number(formData.balance || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          />
+          <p className="text-[10px] text-gray-500 mt-1">
+            * Account balance is managed automatically via income, expenses, and inter-account transfers.
+          </p>
+        </div>
+
+        {formData.type === "credit" && (
+          <div>
+            <label className="block text-xs font-semibold text-gray-300 mb-1">
+              Credit Limit (₹)
+            </label>
+            <input
+              type="number"
+              step="any"
+              placeholder="100000"
+              className="w-full bg-neutral-900 border border-neutral-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500"
+              value={formData.creditLimit}
+              onChange={(e) => setFormData({ ...formData, creditLimit: e.target.value })}
+            />
+          </div>
+        )}
 
         <div>
           <label className="block text-xs font-semibold text-gray-300 mb-1">
@@ -201,7 +196,7 @@ const AddAccountModal = ({ isOpen, onClose, onAddAccount }) => {
             type="submit"
             className="px-5 py-2 text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl transition-all shadow-md cursor-pointer"
           >
-            Create Account
+            Save Changes
           </button>
         </div>
       </form>
@@ -209,4 +204,4 @@ const AddAccountModal = ({ isOpen, onClose, onAddAccount }) => {
   );
 };
 
-export default AddAccountModal;
+export default EditAccountModal;

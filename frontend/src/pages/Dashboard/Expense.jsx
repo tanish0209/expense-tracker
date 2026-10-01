@@ -17,6 +17,7 @@ const Expense = () => {
     data: null,
   });
   const [openAddExpenseModal, setOpenAddExpenseModal] = useState(false);
+  const [editingExpense, setEditingExpense] = useState(null);
 
   //Get All Expense Details
   const fetchExpense = useCallback(async () => {
@@ -33,8 +34,8 @@ const Expense = () => {
     }
   }, []);
 
-  //Handle Add Expense
-  const handleAddExpense = async (expense) => {
+  //Handle Add or Update Expense
+  const handleSaveExpense = async (expense) => {
     const { category, amount, date, icon, accountId } = expense;
     if (!category) {
       toast.error("Category is required");
@@ -49,13 +50,25 @@ const Expense = () => {
       return;
     }
     try {
-      await API.post("/api/v1/expense/add", { category, amount, date, icon, accountId });
+      if (editingExpense) {
+        await API.put(`/api/v1/expense/update/${editingExpense._id}`, {
+          category,
+          amount,
+          date,
+          icon,
+          accountId,
+        });
+        toast.success("Expense details updated successfully!");
+      } else {
+        await API.post("/api/v1/expense/add", { category, amount, date, icon, accountId });
+        toast.success("Expense added successfully!");
+      }
       setOpenAddExpenseModal(false);
-      toast.success("Expense added successfully!");
+      setEditingExpense(null);
       fetchExpense();
     } catch (error) {
-      console.error("Error adding Expense:", error);
-      toast.error("Failed to add expense");
+      console.error("Error saving expense:", error);
+      toast.error(editingExpense ? "Failed to update expense" : "Failed to add expense");
     }
   };
 
@@ -73,9 +86,14 @@ const Expense = () => {
   };
 
   //handle Download expense Details
-  const handleDownloadExpenseDetails = async () => {
+  const handleDownloadExpenseDetails = async (dateBounds = {}) => {
     try {
+      const params = {};
+      if (dateBounds?.startDate) params.startDate = dateBounds.startDate;
+      if (dateBounds?.endDate) params.endDate = dateBounds.endDate;
+
       const res = await API.get("/api/v1/expense/downloadexcel", {
+        params,
         responseType: "blob",
       });
       const url = window.URL.createObjectURL(new Blob([res.data]));
@@ -114,12 +132,19 @@ const Expense = () => {
           <div>
             <ExpenseOverview
               transactions={expenseData}
-              onAddExpense={() => setOpenAddExpenseModal(true)}
+              onAddExpense={() => {
+                setEditingExpense(null);
+                setOpenAddExpenseModal(true);
+              }}
             />
           </div>
           <div>
             <ExpenseList
               transactions={expenseData}
+              onEdit={(expenseItem) => {
+                setEditingExpense(expenseItem);
+                setOpenAddExpenseModal(true);
+              }}
               onDelete={(id) => {
                 setOpenDeleteAlert({ show: true, data: id });
               }}
@@ -129,10 +154,16 @@ const Expense = () => {
         </div>
         <Modal
           isOpen={openAddExpenseModal}
-          onClose={() => setOpenAddExpenseModal(false)}
-          title="Add Expense"
+          onClose={() => {
+            setOpenAddExpenseModal(false);
+            setEditingExpense(null);
+          }}
+          title={editingExpense ? "Edit Expense" : "Add Expense"}
         >
-          <AddExpenseForm onAddExpense={handleAddExpense} />
+          <AddExpenseForm
+            initialData={editingExpense}
+            onAddExpense={handleSaveExpense}
+          />
         </Modal>
         <Modal
           isOpen={openDeleteAlert.show}

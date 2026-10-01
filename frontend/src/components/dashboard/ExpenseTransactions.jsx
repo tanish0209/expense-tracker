@@ -34,25 +34,50 @@ const ExpenseTransactions = ({ transactions, onSeeMore }) => {
           expenseList.slice(0, 5).map((expense, index) => (
             <div
               key={expense._id || expense.id || index}
-              className="grid grid-cols-[5fr_3fr_4fr] py-3 px-4 items-center hover:bg-neutral-700/30 rounded-lg transition-all"
+              className="py-2.5 sm:py-3 px-2 sm:px-4 hover:bg-neutral-700/30 rounded-lg transition-all"
             >
-              <div className="flex items-center gap-3">
-                <TransactionsInfoCard
-                  title={expense.category}
-                  icon={expense.icon}
-                  type="expense"
-                  amount={expense.amount}
-                  hideDeleteBtn
-                  compact
-                />
+              {/* Mobile View */}
+              <div className="flex sm:hidden items-center justify-between gap-3">
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <TransactionsInfoCard
+                    title={expense.category}
+                    icon={expense.icon}
+                    type="expense"
+                    amount={expense.amount}
+                    hideDeleteBtn
+                    compact
+                  />
+                  <p className="text-[11px] text-gray-400 font-medium pl-1">
+                    {moment(expense.date).format("Do MMM YYYY")}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p className="font-semibold px-2.5 py-1 text-xs rounded-lg whitespace-nowrap bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                    - ₹ {Number(expense.amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                </div>
               </div>
-              <p className="text-center font-medium text-xs md:text-sm text-gray-300">
-                {moment(expense.date).format("Do MMM YYYY")}
-              </p>
-              <div className="flex justify-end">
-                <p className="font-bold px-3 py-1 text-xs rounded-lg w-fit bg-rose-500/10 text-rose-400 border border-rose-500/20">
-                  - ₹ {Number(expense.amount || 0).toLocaleString()}
+
+              {/* Desktop View */}
+              <div className="hidden sm:grid sm:grid-cols-[5fr_3fr_4fr] items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <TransactionsInfoCard
+                    title={expense.category}
+                    icon={expense.icon}
+                    type="expense"
+                    amount={expense.amount}
+                    hideDeleteBtn
+                    compact
+                  />
+                </div>
+                <p className="text-center font-medium text-xs md:text-sm text-gray-300">
+                  {moment(expense.date).format("Do MMM YYYY")}
                 </p>
+                <div className="flex justify-end">
+                  <p className="font-semibold px-3 py-1 text-xs rounded-lg w-fit bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                    - ₹ {Number(expense.amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </p>
+                </div>
               </div>
             </div>
           ))

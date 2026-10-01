@@ -101,8 +101,16 @@ const deleteExpense = async (req, res) => {
 
 const downloadExpenseExcel = async (req, res) => {
     const userId = req.user.id;
+    const { startDate, endDate } = req.query;
     try {
-        const expense = await expenseModel.find({ userId }).populate("accountId", "name").sort({ date: -1 }).lean();
+        let filter = { userId };
+        if (startDate && endDate) {
+            filter.date = {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            };
+        }
+        const expense = await expenseModel.find(filter).populate("accountId", "name").sort({ date: -1 }).lean();
 
         const data = expense.map((item) => ({
             Category: item.category,
@@ -124,4 +132,82 @@ const downloadExpenseExcel = async (req, res) => {
     }
 };
 
-export { addExpense, getAllExpense, deleteExpense, downloadExpenseExcel };
+const updateExpense = async (req, res) => {
+    const userId = req.user.id;
+    const { id } = req.params;
+    const { icon, category, amount, date, accountId } = req.body;
+
+    try {
+        const existingExpense = await expenseModel.findOne({ _id: id, userId });
+        if (!existingExpense) {
+            return res.status(404).json({ success: false, message: "Expense not found" });
+        }
+
+        const oldAmount = Number(existingExpense.amount || 0);
+        const oldAccountId = existingExpense.accountId;
+
+        const newAmount = amount !== undefined ? Number(amount) : oldAmount;
+        let newAccountId = oldAccountId;
+
+        if (accountId) {
+            const accExists = await Account.findOne({ _id: accountId, userId });
+            if (accExists) {
+                newAccountId = accExists._id;
+            }
+        }
+
+        // Adjust balances
+        if (String(oldAccountId) === String(newAccountId)) {
+            const diff = newAmount - oldAmount;
+            if (diff !== 0 && oldAccountId) {
+                const targetAccount = await Account.findOne({ _id: oldAccountId, userId });
+                if (targetAccount) {
+                    if (targetAccount.type === "credit") {
+                        targetAccount.balance = Number(targetAccount.balance || 0) + diff;
+                    } else {
+                        targetAccount.balance = Number(targetAccount.balance || 0) - diff;
+                    }
+                    await targetAccount.save();
+                }
+            }
+        } else {
+            if (oldAccountId) {
+                const oldAccount = await Account.findOne({ _id: oldAccountId, userId });
+                if (oldAccount) {
+                    if (oldAccount.type === "credit") {
+                        oldAccount.balance = Number(oldAccount.balance || 0) - oldAmount;
+                    } else {
+                        oldAccount.balance = Number(oldAccount.balance || 0) + oldAmount;
+                    }
+                    await oldAccount.save();
+                }
+            }
+            if (newAccountId) {
+                const newAccount = await Account.findOne({ _id: newAccountId, userId });
+                if (newAccount) {
+                    if (newAccount.type === "credit") {
+                        newAccount.balance = Number(newAccount.balance || 0) + newAmount;
+                    } else {
+                        newAccount.balance = Number(newAccount.balance || 0) - newAmount;
+                    }
+                    await newAccount.save();
+                }
+            }
+        }
+
+        if (icon !== undefined) existingExpense.icon = icon;
+        if (category !== undefined) existingExpense.category = category;
+        if (amount !== undefined) existingExpense.amount = newAmount;
+        if (date !== undefined) existingExpense.date = new Date(date);
+        existingExpense.accountId = newAccountId;
+
+        await existingExpense.save();
+
+        res.json({ success: true, message: "Expense Updated Successfully", updatedExpense: existingExpense });
+    } catch (error) {
+        console.error("Update expense error:", error);
+        res.status(500).json({ success: false, message: "Server Error" });
+    }
+};
+
+export { addExpense, getAllExpense, deleteExpense, downloadExpenseExcel, updateExpense };

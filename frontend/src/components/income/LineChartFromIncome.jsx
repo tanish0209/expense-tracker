@@ -104,7 +104,10 @@ const LineChartFromIncome = memo(({ transactions = [] }) => {
                 borderColor: "#404040",
                 borderRadius: "10px",
               }}
-              formatter={(val) => [`₹ ${val}`, "Income"]}
+              formatter={(val) => [
+                `₹ ${Number(val || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+                "Income",
+              ]}
               labelFormatter={(lbl, payload) => payload?.[0]?.payload?.fullDate || `Day ${lbl}`}
             />
             <Legend />

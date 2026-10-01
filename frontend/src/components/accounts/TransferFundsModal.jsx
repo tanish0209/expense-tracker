@@ -16,7 +16,7 @@ const TransferFundsModal = ({ isOpen, onClose, accounts = [], onTransfer }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="⇄ Transfer Funds Between Accounts">
+    <Modal isOpen={isOpen} onClose={onClose} title="Transfer Funds Between Accounts">
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label className="block text-xs font-semibold text-gray-300 mb-1">
@@ -31,7 +31,7 @@ const TransferFundsModal = ({ isOpen, onClose, accounts = [], onTransfer }) => {
             <option value="" className="bg-neutral-900">Select Source Account</option>
             {accounts.map((acc) => (
               <option key={acc._id} value={acc._id} className="bg-neutral-900">
-                {acc.icon} {acc.name} (Balance: ₹{Number(acc.balance || 0).toLocaleString()})
+                {acc.name} (Balance: ₹{Number(acc.balance || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
               </option>
             ))}
           </select>
@@ -50,7 +50,7 @@ const TransferFundsModal = ({ isOpen, onClose, accounts = [], onTransfer }) => {
             <option value="" className="bg-neutral-900">Select Destination Account</option>
             {accounts.map((acc) => (
               <option key={acc._id} value={acc._id} className="bg-neutral-900">
-                {acc.icon} {acc.name} (Balance: ₹{Number(acc.balance || 0).toLocaleString()})
+                {acc.name} (Balance: ₹{Number(acc.balance || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
               </option>
             ))}
           </select>

@@ -32,33 +32,66 @@ const RecentTransactions = ({ transactions, onSeeMore }) => {
           transactions.slice(0, 5).map((item, index) => (
             <div
               key={item._id || item.id || index}
-              className="grid grid-cols-[1fr_auto_auto] sm:grid-cols-[5fr_3fr_4fr] py-2.5 sm:py-3 px-2 sm:px-4 items-center gap-2 sm:gap-4 hover:bg-neutral-700/30 rounded-lg transition-all"
+              className="py-2.5 sm:py-3 px-2 sm:px-4 hover:bg-neutral-700/30 rounded-lg transition-all"
             >
-              <div className="flex items-center gap-2 overflow-hidden">
-                <TransactionsInfoCard
-                  title={item.type === "expense" ? item.category : item.source}
-                  icon={item.icon}
-                  type={item.type}
-                  amount={item.amount}
-                  hideDeleteBtn
-                  compact
-                />
+              {/* Mobile View */}
+              <div className="flex sm:hidden items-center justify-between gap-3">
+                <div className="flex flex-col gap-0.5 min-w-0">
+                  <TransactionsInfoCard
+                    title={item.type === "expense" ? item.category : item.source}
+                    icon={item.icon}
+                    type={item.type}
+                    amount={item.amount}
+                    hideDeleteBtn
+                    compact
+                  />
+                  <p className="text-[11px] text-gray-400 font-medium pl-1">
+                    {moment(item.date).format("Do MMM YYYY")}
+                  </p>
+                </div>
+                <div className="shrink-0 text-right">
+                  <p
+                    className={`font-semibold px-2.5 py-1 text-xs rounded-lg whitespace-nowrap ${
+                      item.type === "expense"
+                        ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                        : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                    }`}
+                  >
+                    {item.type === "expense"
+                      ? `- ₹ ${Number(item.amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                      : `+ ₹ ${Number(item.amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                  </p>
+                </div>
               </div>
-              <p className="text-center font-medium text-[11px] sm:text-xs md:text-sm text-gray-400 sm:text-gray-300 whitespace-nowrap">
-                {moment(item.date).format("Do MMM YYYY")}
-              </p>
-              <div className="flex justify-end shrink-0">
-                <p
-                  className={`font-bold px-2.5 py-1 text-xs rounded-lg w-fit whitespace-nowrap ${
-                    item.type === "expense"
-                      ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                      : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-                  }`}
-                >
-                  {item.type === "expense"
-                    ? `- ₹ ${Number(item.amount || 0).toLocaleString()}`
-                    : `+ ₹ ${Number(item.amount || 0).toLocaleString()}`}
+
+              {/* Desktop View */}
+              <div className="hidden sm:grid sm:grid-cols-[5fr_3fr_4fr] items-center gap-4">
+                <div className="flex items-center gap-2 overflow-hidden">
+                  <TransactionsInfoCard
+                    title={item.type === "expense" ? item.category : item.source}
+                    icon={item.icon}
+                    type={item.type}
+                    amount={item.amount}
+                    hideDeleteBtn
+                    compact
+                  />
+                </div>
+                <p className="text-center font-medium text-xs md:text-sm text-gray-300 whitespace-nowrap">
+                  {moment(item.date).format("Do MMM YYYY")}
                 </p>
+                <div className="flex justify-end shrink-0">
+                  <p
+                    className={`font-semibold px-2.5 py-1 text-xs rounded-lg w-fit whitespace-nowrap ${
+                      item.type === "expense"
+                        ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                        : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                    }`}
+                  >
+                    {item.type === "expense"
+                      ? `- ₹ ${Number(item.amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                      : `+ ₹ ${Number(item.amount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                  </p>
+                </div>
               </div>
             </div>
           ))

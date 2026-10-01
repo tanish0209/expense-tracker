@@ -132,7 +132,7 @@ const LineChartFromTransactions = memo(({ transactions }) => {
               }}
               itemStyle={{ fontSize: 13 }}
               formatter={(value, name) => [
-                `$${value}`,
+                `₹ ${Number(value || 0).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
                 name.charAt(0).toUpperCase() + name.slice(1),
               ]}
               labelFormatter={(label, payload) =>
